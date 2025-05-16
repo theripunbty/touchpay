@@ -35,6 +35,19 @@ export type RootStackParamList = {
   Notifications: undefined;
   Support: undefined;
   LiveSupport: undefined;
+  Transactions: undefined;
+  MyContacts: undefined;
+  UserPay: {
+    contactName?: string;
+    contactPhone?: string;
+    contactPhoto?: string;
+  };
+  PaymentSuccess: {
+    amount: string;
+    recipientName: string;
+    upiId?: string;
+    upiRefId?: string;
+  };
 };
 
 export type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Splash">;
@@ -56,3 +69,7 @@ export type NotificationDetailScreenNavigationProp = NativeStackNavigationProp<R
 export type NotificationsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Notifications">;
 export type SupportScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Support">;
 export type LiveSupportScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "LiveSupport">;
+export type TransactionsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Transactions">;
+export type MyContactsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "MyContacts">;
+export type UserPayScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "UserPay">;
+export type PaymentSuccessScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "PaymentSuccess">;

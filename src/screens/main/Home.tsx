@@ -22,6 +22,7 @@ import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { HomeScreenNavigationProp } from '../../types/navigation';
 import GridBackground from '@components/GridBackground';
 import { SvgXml } from 'react-native-svg';
+import CheckBalanceSheet from '@components/CheckBalanceSheet';
 
 interface Props {
   navigation: HomeScreenNavigationProp
@@ -53,6 +54,8 @@ const Home: React.FC<Props> = ({ navigation }) => {
 
   // Animation value for UPI container
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  // Animation value for QR button icon pulse effect
+  const qrIconPulse = useRef(new Animated.Value(1)).current;
 
   const format = useCameraFormat(device, [
     { videoResolution: { width: 1920, height: 1080 } },
@@ -134,7 +137,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
   };
 
   const getTransactions = () => {
-    // navigation.navigate("Transactions");
+    navigation.navigate("Transactions");
   };
 
   const getNotifications = () => {
@@ -217,6 +220,31 @@ const Home: React.FC<Props> = ({ navigation }) => {
       ])
     ).start();
   }, [pulseAnim]);
+
+  // QR button pulse animation
+  useEffect(() => {
+    // Animation sequence for QR icon pulse
+    Animated.loop(
+      Animated.sequence([
+        // Pulse grow
+        Animated.timing(qrIconPulse, {
+          toValue: 1.3,
+          duration: 800,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        // Pulse shrink
+        Animated.timing(qrIconPulse, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.in(Easing.ease),
+          useNativeDriver: true,
+        }),
+        // Small pause
+        Animated.delay(200),
+      ])
+    ).start();
+  }, [qrIconPulse]);
 
   if (!hasPermission || !device) {
     return null;
@@ -352,7 +380,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
                 </LinearGradient>
               </TouchableOpacity> */}
 
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate("MyContacts")}>
                 <LinearGradient
                   colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']}
                   start={{ x: 0, y: 0 }}
@@ -434,11 +462,28 @@ const Home: React.FC<Props> = ({ navigation }) => {
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.qrButton}>
-                <MaterialIcons name="keyboard-double-arrow-up" size={24} color="#fff" />
+                <Animated.View
+                  style={{
+                    transform: [
+                      { scale: qrIconPulse }
+                    ]
+                  }}
+                >
+                  <MaterialIcons name="local-fire-department" size={24} color="white" />
+                </Animated.View>
               </TouchableOpacity>
             </View>
           </View>
         </View>
+
+        <CheckBalanceSheet
+          isVisible={isCheckBalanceVisible}
+          onClose={handleCloseCheckBalance}
+          bankLogo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSquouX3qJzp6uZwleCOtTBppHfDKlN6vDHg&s"
+          accountNumber="12345678"
+          accountType="Savings"
+          balance="55,500.08"
+        />
 
       </SafeAreaView>
     </GridBackground>
@@ -522,7 +567,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     borderWidth: 2,
-    borderColor: "#333"
+    borderColor: "#333",
+    backgroundColor: "#000000"
   },
   camera: {
     width: '100%',

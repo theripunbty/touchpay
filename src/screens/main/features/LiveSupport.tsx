@@ -10,10 +10,7 @@ import {
   FlatList,
   Image,
   Keyboard,
-  Modal,
   Animated,
-  Dimensions,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Alert,
@@ -21,13 +18,12 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LiveSupportScreenNavigationProp } from '../../../types/navigation';
 import { useNavigation } from '@react-navigation/native';
 
-const AGENT_AVATAR = 'https://randomuser.me/api/portraits/women/44.jpg';
-const USER_AVATAR = 'https://randomuser.me/api/portraits/men/32.jpg';
+const AGENT_AVATAR = 'https://res.cloudinary.com/dojodcwxm/image/upload/fl_preserve_transparency/v1747373314/touchpay_1_snko6o.jpg';
+const USER_AVATAR = 'https://res.cloudinary.com/dojodcwxm/image/upload/fl_preserve_transparency/v1746203887/oliveit/registrations/yuae5vufae2k8uwrtoit.jpg';
 
 interface Message {
   id: string;

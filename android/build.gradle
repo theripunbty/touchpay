@@ -6,6 +6,10 @@ buildscript {
         targetSdkVersion = 35
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.0.21"
+        androidXVersion = "1.13.1"
+        supportLibVersion = "28.0.0"
+        androidXAnnotation = "1.7.1"
+        androidXBrowser = "1.8.0"
     }
     repositories {
         google()
@@ -19,3 +23,21 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// Configuration for dependency resolution
+allprojects {
+    repositories {
+        mavenCentral()
+        google()
+    }
+    
+    // Fix for duplicate classes
+    configurations.all {
+        resolutionStrategy {
+            force "androidx.core:core:${rootProject.ext.androidXVersion}"
+            force "androidx.annotation:annotation:${rootProject.ext.androidXAnnotation}"
+            force "androidx.browser:browser:${rootProject.ext.androidXBrowser}"
+            exclude group: 'com.android.support'
+        }
+    }
+}

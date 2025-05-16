@@ -21,6 +21,10 @@ import Notifications from '@screens/main/features/Notifications';
 import NotificationDetail from '@screens/main/features/NotificationDetail';
 import Support from '@screens/main/features/Support';
 import LiveSupport from '@screens/main/features/LiveSupport';
+import Transactions from '@screens/main/features/Transactions';
+import MyContacts from '@screens/main/features/MyContacts';
+import UserPay from '@screens/main/features/UserPay';
+import PaymentSuccess from '@screens/main/features/success/PaymentSuccess';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -117,11 +121,39 @@ const AppNavigator = () => {
           options={{
             contentStyle: { backgroundColor: '#000000' },
           }}
-          />
-          <Stack.Screen name="NotificationDetail" component={NotificationDetail} />
-          <Stack.Screen name="Notifications" component={Notifications} />
-          <Stack.Screen name="Support" component={Support} />
-          <Stack.Screen name="LiveSupport" component={LiveSupport} />
+        />
+        <Stack.Screen 
+          name="NotificationDetail" 
+          component={NotificationDetail} 
+        />
+        <Stack.Screen 
+          name="Notifications" 
+          component={Notifications} 
+        />
+        <Stack.Screen 
+          name="Support" 
+          component={Support} 
+        />
+        <Stack.Screen 
+          name="LiveSupport" 
+          component={LiveSupport} 
+        />
+        <Stack.Screen 
+          name="Transactions" 
+          component={Transactions} 
+        />
+        <Stack.Screen 
+          name="MyContacts" 
+          component={MyContacts} 
+        />
+        <Stack.Screen 
+          name="UserPay" 
+          component={UserPay} 
+        />
+        <Stack.Screen 
+          name="PaymentSuccess" 
+          component={PaymentSuccess} 
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
