@@ -166,7 +166,7 @@ const PermissionScreen = () => {
     } else {
       Alert.alert(
         'Permissions Required',
-        'All permissions are required to continue. Please grant all permissions.',
+        'All permissions are required to continue as per banking security protocols and RBI guidelines.',
         [{ text: 'OK' }]
       );
     }
@@ -251,7 +251,7 @@ const PermissionScreen = () => {
             )}
           </View>
           <Text style={styles.permissionDescription}>
-            We sync SMS to verify your device and set up UPI as per RBI and NPCI guidelines.
+            SMS access needed for verification as per RBI and NPCI guidelines for financial transactions.
           </Text>
         </View>
 
@@ -499,6 +499,26 @@ const styles = StyleSheet.create({
   },
   activeButtonText: {
     color: '#121212',
+  },
+  requiredBadge: {
+    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.4)',
+  },
+  requiredText: {
+    color: '#3498db',
+    fontSize: 10,
+    fontWeight: '500',
+  },
+  permissionNote: {
+    fontSize: 12,
+    color: '#3498db',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
 });
 

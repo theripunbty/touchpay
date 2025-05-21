@@ -23,6 +23,21 @@ export type RootStackParamList = {
   Login: undefined;
   Profile: undefined;
   SendMoney: undefined;
+  SendMoneyForum: {
+    amount: string;
+  };
+  RequestMoney: undefined;
+  RequestMoneyForum: {
+    amount: string;
+    note?: string;
+  };
+  RequestConfirmation: {
+    contactName: string;
+    contactPhone: string;
+    contactPhoto: string;
+    amount: string;
+    note?: string;
+  };
   NotificationDetail: {
     id: string;
     title: string;
@@ -41,6 +56,7 @@ export type RootStackParamList = {
     contactName?: string;
     contactPhone?: string;
     contactPhoto?: string;
+    amount?: string;
   };
   PaymentSuccess: {
     amount: string;
@@ -48,6 +64,9 @@ export type RootStackParamList = {
     upiId?: string;
     upiRefId?: string;
   };
+  SnowHome: undefined;
+  Game: undefined;
+  Transact: undefined;
 };
 
 export type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Splash">;
@@ -65,6 +84,9 @@ export type WebPageScreenNavigationProp = NativeStackNavigationProp<RootStackPar
 export type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Login">;
 export type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Profile">;
 export type SendMoneyScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "SendMoney">;
+export type SendMoneyForumScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "SendMoneyForum">;
+export type RequestMoneyScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "RequestMoney">;
+export type RequestMoneyForumScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "RequestMoneyForum">;
 export type NotificationDetailScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "NotificationDetail">;
 export type NotificationsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Notifications">;
 export type SupportScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Support">;
@@ -73,3 +95,6 @@ export type TransactionsScreenNavigationProp = NativeStackNavigationProp<RootSta
 export type MyContactsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "MyContacts">;
 export type UserPayScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "UserPay">;
 export type PaymentSuccessScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "PaymentSuccess">;
+export type SnowHomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "SnowHome">;
+export type GameScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Game">;
+export type TransactScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Transact">;

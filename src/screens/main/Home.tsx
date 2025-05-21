@@ -67,7 +67,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 
   const spendingData = {
     today: {
-      amount: '590.00',
+      amount: '1,880.00',
       comparison: {
         amount: '180.00',
         percentage: 12,
@@ -149,7 +149,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
   };
 
   const requestMoney = () => {
-    navigation.navigate("SendMoney");
+    navigation.navigate("RequestMoney");
   };
 
   const goToProfile = () => {
@@ -461,7 +461,10 @@ const Home: React.FC<Props> = ({ navigation }) => {
                 <Text style={styles.requestText}>Request</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.qrButton}>
+              <TouchableOpacity 
+                style={styles.qrButton} 
+                onPress={() => navigation.navigate("SnowHome")}
+              >
                 <Animated.View
                   style={{
                     transform: [
@@ -469,7 +472,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
                     ]
                   }}
                 >
-                  <MaterialIcons name="local-fire-department" size={24} color="white" />
+                  <MaterialIcons name="ac-unit" size={24} color="white" />
                 </Animated.View>
               </TouchableOpacity>
             </View>
@@ -658,7 +661,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
   },
   priceValue: {
-    fontSize: width * 0.1,
+    fontSize: width * 0.09,
     fontWeight: '600',
     color: '#fff',
     marginTop: height * 0.01,

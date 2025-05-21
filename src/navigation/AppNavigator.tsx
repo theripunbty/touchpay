@@ -17,6 +17,9 @@ import Login from '@screens/auth/2FA-Auth/Login';
 import Home from '@screens/main/Home';
 import ProfileScreen from '@screens/main/features/Profile';
 import SendMoney from '@screens/main/features/SendMoney';
+import SendMoneyForum from '@screens/main/features/SendMoneyForum';
+import RequestMoney from '@screens/main/features/RequestMoney';
+import RequestMoneyForum from '@screens/main/features/RequestMoneyForum';
 import Notifications from '@screens/main/features/Notifications';
 import NotificationDetail from '@screens/main/features/NotificationDetail';
 import Support from '@screens/main/features/Support';
@@ -25,6 +28,10 @@ import Transactions from '@screens/main/features/Transactions';
 import MyContacts from '@screens/main/features/MyContacts';
 import UserPay from '@screens/main/features/UserPay';
 import PaymentSuccess from '@screens/main/features/success/PaymentSuccess';
+import SnowHome from '@screens/main/explore/SnowHome';
+import Game from '@screens/main/explore/gamification/Game';
+import Transact from '@screens/main/explore/records/Transact';
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -122,6 +129,27 @@ const AppNavigator = () => {
             contentStyle: { backgroundColor: '#000000' },
           }}
         />
+        <Stack.Screen
+          name="SendMoneyForum"
+          component={SendMoneyForum}
+          options={{
+            contentStyle: { backgroundColor: '#000000' },
+          }}
+        />
+        <Stack.Screen
+          name="RequestMoney"
+          component={RequestMoney}
+          options={{
+            contentStyle: { backgroundColor: '#000000' },
+          }}
+        />
+        <Stack.Screen
+          name="RequestMoneyForum"
+          component={RequestMoneyForum}
+          options={{
+            contentStyle: { backgroundColor: '#000000' },
+          }}
+        />
         <Stack.Screen 
           name="NotificationDetail" 
           component={NotificationDetail} 
@@ -153,6 +181,24 @@ const AppNavigator = () => {
         <Stack.Screen 
           name="PaymentSuccess" 
           component={PaymentSuccess} 
+        />
+        <Stack.Screen
+          name="SnowHome"
+          component={SnowHome}
+        />
+        <Stack.Screen
+          name="Game"
+          component={Game}
+          options={{
+            contentStyle: { backgroundColor: '#ffffff' },
+          }}
+        />
+        <Stack.Screen
+          name="Transact"
+          component={Transact}
+          options={{
+            contentStyle: { backgroundColor: '#ffffff' },
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

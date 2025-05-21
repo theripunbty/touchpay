@@ -129,7 +129,7 @@ const Login = () => {
   };
 
   const handleSignUp = () => {
-    navigation.navigate('SignUp');
+    navigation.navigate('Terms');
   };
 
   // Format phone number with spaces for better readability

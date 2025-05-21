@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const SendMoney: React.FC<{ navigation: any }> = ({ navigation }) => {
+const RequestMoney: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [amount, setAmount] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [selectedOption, setSelectedOption] = useState<string>('contact');
@@ -256,8 +256,8 @@ const SendMoney: React.FC<{ navigation: any }> = ({ navigation }) => {
     // Clear error if everything is valid
     setErrorMessage('');
     
-    // Navigate to SendMoneyForum page with the amount
-    navigation.navigate('SendMoneyForum', { amount: formatIndianNumber(amount) });
+    // Navigate to RequestMoneyForum page with the amount
+    navigation.navigate('RequestMoneyForum', { amount: formatIndianNumber(amount) });
   }, [amount, navigation, formatIndianNumber]);
 
   return (
@@ -274,7 +274,7 @@ const SendMoney: React.FC<{ navigation: any }> = ({ navigation }) => {
             <MaterialIcons name="arrow-back" size={24} color="#fff" />
           </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Send Money</Text>
+        <Text style={styles.headerTitle}>Request Money</Text>
         <View style={{width: 40}} />
       </View>
 
@@ -492,4 +492,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(SendMoney);
+export default React.memo(RequestMoney);

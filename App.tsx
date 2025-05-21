@@ -1,6 +1,6 @@
-import React, { ErrorInfo } from 'react';
+import React, { ErrorInfo, useEffect } from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Appearance, StatusBar } from 'react-native';
 
 // Error boundary component to catch and display rendering errors
 class ErrorBoundary extends React.Component<
@@ -56,8 +56,15 @@ const styles = StyleSheet.create({
 });
 
 const App = () => {
+  // Force dark mode
+  useEffect(() => {
+    // Set preferred color scheme to dark
+    Appearance.setColorScheme('dark');
+  }, []);
+
   return (
     <ErrorBoundary>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <AppNavigator />
     </ErrorBoundary>
   );

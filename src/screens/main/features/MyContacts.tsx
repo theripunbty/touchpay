@@ -152,6 +152,29 @@ const MyContacts: React.FC<Props> = ({ navigation }) => {
           />
         </View>
 
+        {/* Transfer Options */}
+        <View style={styles.transferOptionsContainer}>
+          <TouchableOpacity 
+            style={styles.transferOption}
+            onPress={() => navigation.navigate('SelfTransfer')}
+          >
+            <View style={styles.transferOptionIcon}>
+              <MaterialIcons name="auto-mode" size={20} color="#fff" />
+            </View>
+            <Text style={styles.transferOptionText}>Self transfer</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.transferOption}
+            onPress={() => navigation.navigate('BankTransfer')}
+          >
+            <View style={styles.transferOptionIcon}>
+              <MaterialIcons name="assured-workload" size={20} color="#fff" />
+            </View>
+            <Text style={styles.transferOptionText}>Bank transfer</Text>
+          </TouchableOpacity>
+        </View>
+
         {isLoading ? (
           renderSkeletonLoading()
         ) : contacts.length === 0 ? (
@@ -301,6 +324,31 @@ const styles = StyleSheet.create({
     height: 13,
     width: '40%',
     backgroundColor: '#333',
+  },
+  transferOptionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  transferOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#1E1E1E',
+    borderRadius: 50,
+    width: '48%',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  transferOptionIcon: {
+    marginRight: 8,
+  },
+  transferOptionText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#fff',
   },
 });
 

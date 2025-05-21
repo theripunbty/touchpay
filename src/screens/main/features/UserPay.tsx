@@ -21,10 +21,8 @@ const { width } = Dimensions.get('window');
 const UserPay = ({ navigation, route }: { navigation: any; route: any }) => {
   const [amount, setAmount] = useState('0');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('Movie');
   const [comment, setComment] = useState('');
   const COMMENT_MAX_LENGTH = 300;
-  const COMMENT_ALLOWED_REGEX = /^[a-zA-Z0-9 =()]*$/;
 
   const recipient = {
     name: route?.params?.contactName || 'Annet Robson',
@@ -125,9 +123,9 @@ const UserPay = ({ navigation, route }: { navigation: any; route: any }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
+      <StatusBar barStyle="light-content" backgroundColor="#121212" />
       <LinearGradient
-        colors={['#1a1a1a', '#2a2a2a', '#1a1a1a']}
+        colors={['#121212', '#121212', '#121212']}
         style={styles.container}
       >
         {/* Header with Back Button */}
@@ -139,7 +137,7 @@ const UserPay = ({ navigation, route }: { navigation: any; route: any }) => {
           >
             <Text style={styles.backArrow}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Transfer</Text>
+          <Text style={styles.headerTitle}>Transfer to</Text>
           <View style={{ width: 32 }} />
         </View>
 
@@ -155,7 +153,7 @@ const UserPay = ({ navigation, route }: { navigation: any; route: any }) => {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              PAYEE : {recipient.name}
+              {recipient.name}
             </Text>
           </View>
         </View>
@@ -172,7 +170,7 @@ const UserPay = ({ navigation, route }: { navigation: any; route: any }) => {
         {/* Comment Input */}
         <TextInput
           style={styles.commentInput}
-          placeholder="Write a comment..."
+          placeholder="Write a note..."
           placeholderTextColor="#888"
           value={comment}
           onChangeText={text => {
@@ -262,7 +260,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '600',
     color: '#ffffff',
     textAlign: 'center',
