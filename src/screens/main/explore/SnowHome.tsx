@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { accelerometer, setUpdateIntervalForType, SensorTypes } from 'react-native-sensors';
 
 const { width, height } = Dimensions.get('window');
@@ -43,41 +44,72 @@ const SnowHome: React.FC<SnowHomeProps> = ({ navigation }) => {
   // Slider animation
   const sliderAnim = useRef(new Animated.Value(0)).current;
   
-  // State for the number of snowflakes
-  const [snowflakeCount, setSnowflakeCount] = useState(12);
+  // Header animation
+  const headerFadeAnim = useRef(new Animated.Value(0)).current;
+  const profileRotateAnim = useRef(new Animated.Value(0)).current;
+  
+  // Card stagger animations
+  const cardAnimsRef = useRef(
+    Array.from({ length: 5 }, () => new Animated.Value(0))
+  ).current;
+  
+  // State for the number of snowflakes - increased default count
+  const [snowflakeCount, setSnowflakeCount] = useState(28);
   const [isSnowIntensified, setIsSnowIntensified] = useState(false);
   
-  // Create multiple snowfall animations with optimized performance
+  // Create multiple snowfall animations with optimized performance - increased max count
   const snowAnimations = useMemo(() => {
-    return Array.from({ length: 40 }, (_, i) => ({
-      y: new Animated.Value(-Math.random() * 100),
-      x: Math.random() * (width - 60) + 30,
-      size: Math.max(Math.floor(Math.random() * 8) + 4, 5), // Use integer sizes
-      speed: Math.floor(Math.random() * 5000 + 5000), // Slower but smoother
-      opacity: Math.round((Math.random() * 0.3 + 0.3) * 10) / 10, // Reduce decimal precision
-    }));
+    return Array.from({ length: 60 }, (_, i) => {
+      // Add variety to snowflake types
+      const snowflakeType = Math.random() > 0.7 ? 'snowflake' : 'ac-unit';
+      return {
+        y: new Animated.Value(-Math.random() * 100),
+        x: Math.random() * (width - 60) + 30,
+        size: Math.max(Math.floor(Math.random() * 10) + 4, 5), // Slightly larger size range
+        speed: Math.floor(Math.random() * 5000 + 5000), // Slower but smoother
+        opacity: Math.round((Math.random() * 0.5 + 0.3) * 10) / 10, // Increased opacity
+        rotate: Math.floor(Math.random() * 360), // Random rotation
+        type: snowflakeType, // Type of snowflake icon
+      };
+    });
   }, []);
   
-  // Create card snowflake animations with optimized performance
+  // Create card snowflake animations with optimized performance - increased count
   const cardSnowAnimations = useMemo(() => {
-    return Array.from({ length: 24 }, (_, i) => ({
-      y: new Animated.Value(0),
-      x: Math.floor(Math.random() * 80 + 10), // Use integer values when possible
-      y_pos: Math.floor(Math.random() * 80 + 10),
-      size: Math.max(Math.floor(Math.random() * 8) + 4, 5), // Use integer sizes
-      speed: Math.floor(Math.random() * 1500 + 2000), // Adjusted for smoother animation
-      opacity: Math.round((Math.random() * 0.4 + 0.2) * 10) / 10, // Reduce decimal precision
-    }));
+    return Array.from({ length: 30 }, (_, i) => {
+      // Add variety to snowflake types
+      const snowflakeType = Math.random() > 0.6 ? 'snowflake' : 'ac-unit';
+      return {
+        y: new Animated.Value(0),
+        x: Math.floor(Math.random() * 80 + 10), // Use integer values when possible
+        y_pos: Math.floor(Math.random() * 80 + 10),
+        size: Math.max(Math.floor(Math.random() * 8) + 4, 5), // Use integer sizes
+        speed: Math.floor(Math.random() * 1500 + 2000), // Adjusted for smoother animation
+        opacity: Math.round((Math.random() * 0.5 + 0.3) * 10) / 10, // Increased opacity
+        type: snowflakeType, // Type of snowflake icon
+      };
+    });
   }, []);
 
   // Create optimized snowflake component for better performance
-  const SnowflakeIcon = useCallback(({ size, color }: { size: number, color: string }) => (
-    <MaterialIcons 
-      name="ac-unit" 
-      size={size} 
-      color={color} 
-    />
-  ), []);
+  const SnowflakeIcon = useCallback(({ size, color, type }: { size: number, color: string, type: string }) => {
+    if (type === 'snowflake') {
+      return (
+        <MaterialCommunityIcons 
+          name="snowflake" 
+          size={size} 
+          color={color} 
+        />
+      );
+    }
+    return (
+      <MaterialIcons 
+        name="ac-unit" 
+        size={size} 
+        color={color} 
+      />
+    );
+  }, []);
 
   // Handle accelerometer data for shake detection
   useEffect(() => {
@@ -134,20 +166,63 @@ const SnowHome: React.FC<SnowHomeProps> = ({ navigation }) => {
     };
   }, [isSnowIntensified]);
   
-  // Function to intensify snowfall on shake
+  // Function to intensify snowfall on shake - increased snowflake count
   const intensifySnowfall = () => {
     setIsSnowIntensified(true);
-    setSnowflakeCount(40); // Increase snowflake count
+    setSnowflakeCount(60); // Increased maximum snowflake count
     
     // Reset after some time
     setTimeout(() => {
       setIsSnowIntensified(false);
-      setSnowflakeCount(12);
+      setSnowflakeCount(28); // Back to normal but higher than before
     }, 10000); // Back to normal after 10 seconds
   };
 
   // Start all animations
   useEffect(() => {
+    // Header animation
+    Animated.timing(headerFadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.cubic),
+    }).start();
+    
+    // Staggered card animations with attractive timing
+    Animated.stagger(150, [
+      // Entrance animations for each card with slight differences
+      Animated.timing(cardAnimsRef[0], {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.back(1.7)),
+      }),
+      Animated.timing(cardAnimsRef[1], {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.back(1.7)),
+      }),
+      Animated.timing(cardAnimsRef[2], {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.back(1.7)),
+      }),
+      Animated.timing(cardAnimsRef[3], {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.back(1.7)),
+      }),
+      Animated.timing(cardAnimsRef[4], {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.back(1.7)),
+      }),
+    ]).start();
+    
     // Entrance animations
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -239,7 +314,7 @@ const SnowHome: React.FC<SnowHomeProps> = ({ navigation }) => {
     // Distribute animation starts over time to prevent performance spikes
     snowAnimations.forEach((snow, index) => {
       // Start from different positions to create continuous effect
-      snow.y.setValue(-Math.random() * height);
+      snow.y.setValue(-Math.random() * height * 1.5); // Increased range for more depth
       
       // Stagger animation starts
       setTimeout(() => {
@@ -252,7 +327,7 @@ const SnowHome: React.FC<SnowHomeProps> = ({ navigation }) => {
             easing: Easing.linear,
           })
         ).start();
-      }, index * 50); // Stagger by 50ms per snowflake
+      }, index * 30); // Reduced stagger time for faster startup
     });
     
     // Start card snowfall with continuous effect
@@ -318,30 +393,45 @@ const SnowHome: React.FC<SnowHomeProps> = ({ navigation }) => {
             {
               left: snow.x,
               opacity: snow.opacity,
-              transform: [{ translateY: snow.y }],
-              width: snow.size,
-              height: snow.size,
+              transform: [
+                { translateY: snow.y },
+                { rotate: `${snow.rotate}deg` }
+              ],
             }
           ]}
           renderToHardwareTextureAndroid
           shouldRasterizeIOS
         >
-          <MaterialIcons 
-            name="ac-unit" 
-            size={snow.size} 
-            color={isSnowIntensified ? "rgba(200,200,255,0.9)" : "rgba(180,180,255,0.8)"} 
-          />
+          {snow.type === 'snowflake' ? (
+            <MaterialCommunityIcons 
+              name="snowflake" 
+              size={snow.size} 
+              color={isSnowIntensified ? "rgba(220,235,255,0.9)" : "rgba(200,215,255,0.8)"} 
+            />
+          ) : (
+            <MaterialIcons 
+              name="ac-unit" 
+              size={snow.size} 
+              color={isSnowIntensified ? "rgba(210,225,255,0.9)" : "rgba(190,205,255,0.8)"} 
+            />
+          )}
         </Animated.View>
       ))}
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
+        <Animated.View 
+          style={[
+            styles.header,
+            { opacity: headerFadeAnim }
+          ]}
+        >
           <Text style={styles.headerTitle}>snow park</Text>
           <TouchableOpacity 
             style={styles.profileButton}
             onPress={() => {
-              Vibration.vibrate(100);
+              Vibration.vibrate(50);
               intensifySnowfall();
+              navigation.navigate('Profile');
             }} // Vibrate on click
           >
             <Image 
@@ -349,7 +439,7 @@ const SnowHome: React.FC<SnowHomeProps> = ({ navigation }) => {
               style={styles.profileImage} 
             />
           </TouchableOpacity>
-        </View>
+        </Animated.View>
         
         <Animated.View 
           style={[
@@ -366,176 +456,297 @@ const SnowHome: React.FC<SnowHomeProps> = ({ navigation }) => {
           {/* Top row */}
           <View style={styles.cardRow}>
             {/* Play & Win Card */}
-            <TouchableOpacity 
-              style={[styles.card, styles.cardSmall]}
-              activeOpacity={0.9}
-              onPress={() => navigation.navigate('Game')}
+            <Animated.View
+              style={[
+                { opacity: cardAnimsRef[0] },
+                {
+                  transform: [
+                    { 
+                      scale: cardAnimsRef[0].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.6, 1]
+                      }) 
+                    },
+                    { 
+                      translateY: cardAnimsRef[0].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [30, 0]
+                      }) 
+                    }
+                  ]
+                }
+              ]}
             >
-              <LinearGradient
-                colors={['#3a2db9', '#9c3fd0']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.cardGradient}
+              <TouchableOpacity 
+                style={[styles.card, styles.cardSmall]}
+                activeOpacity={0.9}
+                onPress={() => navigation.navigate('Game')}
               >
-                <Text style={styles.cardLabel}>PLAY & WIN</Text>
-                <View style={styles.snowTextContainer}>
-                  <Text style={styles.snowText}>2x{'\n'}cashback</Text>
-                </View>
-                
-                <View style={styles.winterStormContainer}>
-                  <Text style={styles.winterStormText}>Winter Rush</Text>
-                </View>
-                
-                {/* Falling snow elements inside card - optimized for performance */}
-                {cardSnowAnimations.slice(0, isSnowIntensified ? 16 : 8).map((snow, index) => (
-                  <Animated.View 
-                    key={`card-snow-${index}`}
-                    style={[
-                      styles.cardSnowflake,
-                      {
-                        left: `${snow.x}%`,
-                        top: `${snow.y_pos}%`,
-                        opacity: snow.opacity,
-                        transform: [{ translateY: snow.y }]
-                      }
-                    ]}
-                    renderToHardwareTextureAndroid
-                    shouldRasterizeIOS
-                  >
-                    <MaterialIcons 
-                      name="ac-unit" 
-                      size={snow.size} 
-                      color={isSnowIntensified ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.7)"} 
-                    />
-                  </Animated.View>
-                ))}
-              </LinearGradient>
-            </TouchableOpacity>
+                <LinearGradient
+                  colors={['#3a2db9', '#9c3fd0']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.cardGradient}
+                >
+                  <Text style={styles.cardLabel}>PLAY & WIN</Text>
+                  <View style={styles.snowTextContainer}>
+                    <Text style={styles.snowText}>2x{'\n'}cashback</Text>
+                  </View>
+                  
+                  <View style={styles.winterStormContainer}>
+                    <Text style={styles.winterStormText}>Winter Rush</Text>
+                  </View>
+                  
+                  {/* Falling snow elements inside card - increased count */}
+                  {cardSnowAnimations.slice(0, isSnowIntensified ? 4 : 6).map((snow, index) => (
+                    <Animated.View 
+                      key={`card-snow-${index}`}
+                      style={[
+                        styles.cardSnowflake,
+                        {
+                          left: `${snow.x}%`,
+                          top: `${snow.y_pos}%`,
+                          opacity: snow.opacity,
+                          transform: [{ translateY: snow.y }]
+                        }
+                      ]}
+                      renderToHardwareTextureAndroid
+                      shouldRasterizeIOS
+                    >
+                      {snow.type === 'snowflake' ? (
+                        <MaterialCommunityIcons 
+                          name="snowflake" 
+                          size={snow.size} 
+                          color={isSnowIntensified ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.7)"} 
+                        />
+                      ) : (
+                        <MaterialIcons 
+                          name="ac-unit" 
+                          size={snow.size} 
+                          color={isSnowIntensified ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.7)"} 
+                        />
+                      )}
+                    </Animated.View>
+                  ))}
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View>
             
             {/* May Spends Card */}
+            <Animated.View
+              style={[
+                { opacity: cardAnimsRef[1] },
+                {
+                  transform: [
+                    { 
+                      scale: cardAnimsRef[1].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.6, 1]
+                      }) 
+                    },
+                    { 
+                      translateY: cardAnimsRef[1].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [30, 0]
+                      }) 
+                    }
+                  ]
+                }
+              ]}
+            >
+              <TouchableOpacity 
+                style={[styles.card, styles.cardSmall]}
+                activeOpacity={0.9}
+                onPress={() => navigation.navigate('Transact')}
+              >
+                <LinearGradient
+                  colors={['#4A00E0', '#8E2DE2']}
+                  start={{ x: 0, y: 1 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.cardGradient}
+                >
+                  <Text style={styles.cardLabel}>MY SPENDS</Text>
+                  <Text style={styles.cardTitle}>₹1,433</Text>
+                  <View style={styles.analyticsContainer}>
+                    <Animated.View style={styles.zigzagArrow}>
+                      {[...Array(5)].map((_, i) => (
+                        <View 
+                          key={`zag-${i}`}
+                          style={[
+                            styles.zigzagSegment,
+                            { 
+                              transform: [{ rotate: i % 2 === 0 ? '45deg' : '-45deg' }],
+                              bottom: i * 10,
+                              opacity: 1 - (i * 0.15)
+                            }
+                          ]}
+                        />
+                      ))}
+                    </Animated.View>
+                    <View style={styles.analyticsGrid}>
+                      {[...Array(6)].map((_, i) => (
+                        <View 
+                          key={`grid-${i}`} 
+                          style={[
+                            styles.gridLine,
+                            { opacity: 0.1 + (i * 0.1) }
+                          ]} 
+                        />
+                      ))}
+                    </View>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+          
+          {/* Middle row */}
+          <Animated.View
+            style={[
+              { opacity: cardAnimsRef[2] },
+              {
+                transform: [
+                  { 
+                    scale: cardAnimsRef[2].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.6, 1]
+                    }) 
+                  },
+                  { 
+                    translateY: cardAnimsRef[2].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [30, 0]
+                    }) 
+                  }
+                ]
+              }
+            ]}
+          >
             <TouchableOpacity 
-              style={[styles.card, styles.cardSmall]}
+              style={[styles.card, styles.cardLarge]}
               activeOpacity={0.9}
-              onPress={() => navigation.navigate('Transact')}
+              onPress={() => navigation.navigate('Billings')}
             >
               <LinearGradient
-                colors={['#4A00E0', '#8E2DE2']}
-                start={{ x: 0, y: 1 }}
-                end={{ x: 1, y: 0 }}
+                colors={['#FF8008', '#FFA034', '#FF5733']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={styles.cardGradient}
               >
-                <Text style={styles.cardLabel}>MY SPENDS</Text>
-                <Text style={styles.cardTitle}>₹1,433</Text>
-                <View style={styles.analyticsContainer}>
-                  <Animated.View style={styles.zigzagArrow}>
-                    {[...Array(5)].map((_, i) => (
-                      <View 
-                        key={`zag-${i}`}
-                        style={[
-                          styles.zigzagSegment,
-                          { 
-                            transform: [{ rotate: i % 2 === 0 ? '45deg' : '-45deg' }],
-                            bottom: i * 10,
-                            opacity: 1 - (i * 0.15)
-                          }
-                        ]}
-                      />
-                    ))}
-                  </Animated.View>
-                  <View style={styles.analyticsGrid}>
-                    {[...Array(6)].map((_, i) => (
-                      <View 
-                        key={`grid-${i}`} 
-                        style={[
-                          styles.gridLine,
-                          { opacity: 0.1 + (i * 0.1) }
-                        ]} 
-                      />
-                    ))}
+                {/* Add colorful abstract shapes in background */}
+                <View style={styles.billsBackground}>
+                  <View style={[styles.billsShape, styles.billsCircle, { backgroundColor: '#FFDD00', opacity: 0.2 }]} />
+                  <View style={[styles.billsShape, styles.billsTriangle, { borderBottomColor: '#FF3D7F', opacity: 0.2 }]} />
+                  <View style={[styles.billsShape, styles.billsRectangle, { backgroundColor: '#FFC107', opacity: 0.25 }]} />
+                </View>
+                
+                <Text style={[styles.cardLabel, { color: '#FFFFFF' }]}>ELECTRICITY, GAS, MOBILE & MORE</Text>
+                <View style={styles.billsContainer}>
+                  <View style={styles.billsTextContainer}>
+                    <Text style={styles.billsTitle}>Pay bills</Text>
+                    <Text style={styles.billsSubtitle}>instantly</Text>
                   </View>
                 </View>
               </LinearGradient>
             </TouchableOpacity>
-          </View>
-          
-          {/* Middle row */}
-          <TouchableOpacity 
-            style={[styles.card, styles.cardLarge]}
-            activeOpacity={0.9}
-          >
-            <LinearGradient
-              colors={['#FF8008', '#FFA034', '#FF5733']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.cardGradient}
-            >
-              {/* Add colorful abstract shapes in background */}
-              <View style={styles.billsBackground}>
-                <View style={[styles.billsShape, styles.billsCircle, { backgroundColor: '#FFDD00', opacity: 0.2 }]} />
-                <View style={[styles.billsShape, styles.billsTriangle, { borderBottomColor: '#FF3D7F', opacity: 0.2 }]} />
-                <View style={[styles.billsShape, styles.billsRectangle, { backgroundColor: '#FFC107', opacity: 0.25 }]} />
-              </View>
-              
-              <Text style={[styles.cardLabel, { color: '#FFFFFF' }]}>ELECTRICITY, GAS, MOBILE & MORE</Text>
-              <View style={styles.billsContainer}>
-                <View style={styles.billsTextContainer}>
-                  <Text style={styles.billsTitle}>Pay bills</Text>
-                  <Text style={styles.billsSubtitle}>instantly</Text>
-                </View>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
+          </Animated.View>
           
           {/* Bottom row */}
           <View style={styles.cardRow}>
             {/* Invite Card */}
-            <TouchableOpacity 
-              style={[styles.card, styles.cardSmall]}
-              activeOpacity={0.9}
+            <Animated.View
+              style={[
+                { opacity: cardAnimsRef[3] },
+                {
+                  transform: [
+                    { 
+                      scale: cardAnimsRef[3].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.6, 1]
+                      }) 
+                    },
+                    { 
+                      translateY: cardAnimsRef[3].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [30, 0]
+                      }) 
+                    }
+                  ]
+                }
+              ]}
             >
-              <LinearGradient
-                colors={['#ff5252', '#ff7676']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.cardGradient}
+              <TouchableOpacity 
+                style={[styles.card, styles.cardSmall]}
+                activeOpacity={0.9}
+                onPress={() => navigation.navigate('Invite')}
               >
-                <Text style={styles.cardLabel}>INVITE</Text>
-                <Text style={styles.cardTitle}>Earn upto</Text>
-                <Text style={styles.cardSubtitle}>₹350</Text>
+                <LinearGradient
+                  colors={['#ff5252', '#ff7676']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.cardGradient}
+                >
+                  <Text style={styles.cardLabel}>INVITE</Text>
+                  <Text style={styles.cardTitle}>Earn upto</Text>
+                  <Text style={styles.cardSubtitle}>₹350</Text>
 
-              </LinearGradient>
-            </TouchableOpacity>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View>
             
             {/* Autopay Card */}
-            <TouchableOpacity 
-              style={[styles.card, styles.cardSmall]}
-              activeOpacity={0.9}
+            <Animated.View
+              style={[
+                { opacity: cardAnimsRef[4] },
+                {
+                  transform: [
+                    { 
+                      scale: cardAnimsRef[4].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.6, 1]
+                      }) 
+                    },
+                    { 
+                      translateY: cardAnimsRef[4].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [30, 0]
+                      }) 
+                    }
+                  ]
+                }
+              ]}
             >
-              <LinearGradient
-                colors={['#2196f3', '#2196f3']}
-                style={styles.cardGradient}
+              <TouchableOpacity 
+                style={[styles.card, styles.cardSmall]}
+                activeOpacity={0.9}
+                onPress={() => navigation.navigate('Autopay')}
               >
-                <Text style={styles.cardLabel}>AUTOPAY</Text>
-                <Text style={styles.cardTitle}>0 Active</Text>
-                <View style={styles.sliderContainer}>
-                  <View style={styles.sliderTrack}>
-                    <Animated.View 
-                      style={[
-                        styles.sliderThumb,
-                        {
-                          transform: [{ 
-                            translateX: sliderAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [0, width * 0.28]
-                            })
-                          }]
-                        }
-                      ]} 
-                    />
+                <LinearGradient
+                  colors={['#2196f3', '#2196f3']}
+                  style={styles.cardGradient}
+                >
+                  <Text style={styles.cardLabel}>AUTOPAY</Text>
+                  <Text style={styles.cardTitle}>0 Active</Text>
+                  <View style={styles.sliderContainer}>
+                    <View style={styles.sliderTrack}>
+                      <Animated.View 
+                        style={[
+                          styles.sliderThumb,
+                          {
+                            transform: [{ 
+                              translateX: sliderAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, width * 0.28]
+                              })
+                            }]
+                          }
+                        ]} 
+                      />
+                    </View>
                   </View>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
         </Animated.View>
       </ScrollView>
@@ -698,9 +909,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     lineHeight: 38,
     textAlign: 'left',
-    textShadowColor: 'rgba(0,0,0,0.4)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
   },
   billsSubtitle: {
     fontSize: 34,
@@ -708,9 +916,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     lineHeight: 38,
     textAlign: 'left',
-    textShadowColor: 'rgba(0,0,0,0.4)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
   },
   envelopeContainer: {
     position: 'absolute',
@@ -823,6 +1028,119 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '45deg' }],
     right: 80,
     bottom: 10,
+  },
+  // Borrow card styles
+  borrowBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: 'hidden',
+  },
+  borrowPatternContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  borrowPatternLine: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    backgroundColor: '#FFFFFF',
+  },
+  borrowTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  borrowIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  borrowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    marginTop: 4,
+    width: '100%',
+  },
+  borrowTextContainer: {
+    flexShrink: 1,
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  borrowTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#ffffff',
+    lineHeight: 24,
+    textAlign: 'left',
+    marginBottom: 8,
+  },
+  borrowAmountContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 16,
+  },
+  borrowSubtitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#ffffff',
+    lineHeight: 26,
+  },
+  borrowAmount: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    lineHeight: 32,
+    letterSpacing: 0.5,
+  },
+  borrowTagContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  borrowTagIcon: {
+    marginRight: 6,
+  },
+  borrowTagText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  borrowCTAContainer: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  borrowCTAText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+    marginRight: 6,
   },
 });
 

@@ -7,7 +7,7 @@ import {
   TextInput,
   SafeAreaView,
   StatusBar,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   KeyboardAvoidingView,
   Platform,
@@ -19,8 +19,6 @@ import Svg, { Path, Circle, Defs, LinearGradient, Stop, Rect, G } from 'react-na
 import { TermsScreenNavigationProp } from '../../../types/navigation';
 import { authService } from '../../../utils/apiService';
 
-const { width, height } = Dimensions.get('window');
-
 const Login = () => {
   const navigation = useNavigation<TermsScreenNavigationProp>();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -28,6 +26,95 @@ const Login = () => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Get current device dimensions
+  const { width, height } = useWindowDimensions();
+  
+  // Calculate responsive sizing factors
+  const isTablet = width > 768;
+  const isSmallPhone = width < 375;
+  const isLargePhone = width >= 414 && width < 768;
+  
+  // Base scaling factor
+  const scale = Math.min(width / 375, height / 812);
+  const fontScale = Math.max(0.85, Math.min(scale * (isTablet ? 1.1 : 1), 1.3));
+
+  // Responsive styles
+  const responsiveStyles = {
+    headerPadding: {
+      paddingHorizontal: width * 0.05,
+      paddingTop: height * 0.01,
+      marginBottom: height * 0.025,
+    },
+    backButton: {
+      width: Math.max(36, 40 * scale),
+      height: Math.max(36, 40 * scale),
+      borderRadius: Math.max(18, 20 * scale),
+    },
+    title: {
+      fontSize: Math.min(32, Math.max(24, 28 * fontScale)),
+      marginBottom: height * 0.01,
+    },
+    subtitle: {
+      fontSize: Math.max(13, 14 * fontScale),
+      lineHeight: Math.max(19, 20 * fontScale), 
+    },
+    phoneInputContainer: {
+      height: Math.max(56, Math.min(60 * scale, 70)),
+      borderRadius: Math.max(10, 12 * scale),
+      marginBottom: height * 0.015,
+    },
+    phoneInput: {
+      fontSize: Math.max(16, 18 * fontScale),
+    },
+    countryCode: {
+      fontSize: Math.max(15, 16 * fontScale),
+    },
+    errorText: {
+      fontSize: Math.max(11, 12 * fontScale),
+    },
+    formContainer: {
+      paddingHorizontal: width * 0.06,
+    },
+    infoSectionText: {
+      fontSize: Math.max(11, 12 * fontScale),
+    },
+    buttonContainer: {
+      paddingHorizontal: width * 0.06,
+      paddingBottom: isTablet ? height * 0.05 : height * 0.04,
+    },
+    continueButton: {
+      height: Math.max(50, Math.min(56 * scale, 65)),
+      borderRadius: Math.max(25, Math.min(28 * scale, 32)),
+      marginBottom: height * 0.02,
+    },
+    buttonText: {
+      fontSize: Math.max(15, 16 * fontScale),
+    },
+    svgIcon: {
+      width: Math.max(16, 18 * scale),
+      height: Math.max(16, 18 * scale),
+    },
+    arrowContainer: {
+      width: Math.max(28, 32 * scale),
+      height: Math.max(28, 32 * scale),
+      borderRadius: Math.max(14, 16 * scale),
+    },
+    titleContainer: {
+      marginTop: height * (isTablet ? 0.07 : isSmallPhone ? 0.03 : 0.04),
+      marginBottom: height * (isTablet ? 0.04 : 0.03),
+    },
+    signUpContainer: {
+      paddingVertical: height * 0.01,
+    },
+    signUpText: {
+      fontSize: Math.max(13, 14 * fontScale),
+    },
+    signUpActionText: {
+      fontSize: Math.max(13, 14 * fontScale),
+      fontWeight: "600" as const,
+    }
+  };
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -165,8 +252,8 @@ const Login = () => {
           </Defs>
           
           {/* Enhanced decorative elements */}
-          <Circle cx={width * 0.85} cy={height * 0.15} r="120" fill="url(#gradCircle1)" />
-          <Circle cx={width * 0.1} cy={height * 0.85} r="150" fill="url(#gradCircle2)" />
+          <Circle cx={width * 0.85} cy={height * 0.15} r={Math.min(120, width * 0.25)} fill="url(#gradCircle1)" />
+          <Circle cx={width * 0.1} cy={height * 0.85} r={Math.min(150, width * 0.3)} fill="url(#gradCircle2)" />
           
           {/* Horizontal accent line */}
           <Rect x="0" y={height * 0.3} width={width} height="1.5" fill="url(#gradLine)" />
@@ -206,9 +293,9 @@ const Login = () => {
       </View>
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, responsiveStyles.headerPadding]}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, responsiveStyles.backButton]}
           onPress={() => navigation.goBack()}
         >
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -225,12 +312,14 @@ const Login = () => {
 
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.formContainer}
+        style={[styles.formContainer, responsiveStyles.formContainer]}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       >
         {/* Title and Description */}
         <Animated.View 
           style={[
             styles.titleContainer,
+            responsiveStyles.titleContainer,
             {
               opacity: fadeAnim,
               transform: [
@@ -240,8 +329,8 @@ const Login = () => {
             }
           ]}
         >
-          <Text style={styles.title}>WELCOME BACK</Text>
-          <Text style={styles.subtitle}>Enter your mobile number to login to your account</Text>
+          <Text style={[styles.title, responsiveStyles.title]}>WELCOME BACK</Text>
+          <Text style={[styles.subtitle, responsiveStyles.subtitle]}>Enter your mobile number to login to your account</Text>
         </Animated.View>
 
         {/* Inputs */}
@@ -257,17 +346,18 @@ const Login = () => {
           {/* Phone Input */}
           <View style={[
             styles.phoneInputContainer, 
+            responsiveStyles.phoneInputContainer,
             error ? styles.phoneInputContainerError : null
           ]}>
             {/* Country Code */}
             <View style={styles.countryCodeContainer}>
-              <Text style={styles.countryCode}>+91</Text>
+              <Text style={[styles.countryCode, responsiveStyles.countryCode]}>+91</Text>
               <View style={styles.divider} />
             </View>
             
             {/* Phone Number Input */}
             <TextInput
-              style={styles.phoneInput}
+              style={[styles.phoneInput, responsiveStyles.phoneInput]}
               value={formattedPhoneNumber()}
               onChangeText={handlePhoneNumberChange}
               placeholder="mobile number"
@@ -281,7 +371,7 @@ const Login = () => {
           {/* Error message */}
           {error ? (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={[styles.errorText, responsiveStyles.errorText]}>{error}</Text>
             </View>
           ) : null}
         </Animated.View>
@@ -297,7 +387,7 @@ const Login = () => {
             ]}
           >
             <View style={styles.infoRow}>
-              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <Svg width={responsiveStyles.svgIcon.width} height={responsiveStyles.svgIcon.height} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
                   stroke="#666666"
@@ -320,10 +410,10 @@ const Login = () => {
                   strokeLinejoin="round"
                 />
               </Svg>
-              <Text style={styles.infoText}>Use your bank-linked mobile number for UPI services.</Text>
+              <Text style={[styles.infoText, responsiveStyles.infoSectionText]}>Use your bank-linked mobile number for UPI services.</Text>
             </View>
             <View style={styles.infoRow}>
-              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <Svg width={responsiveStyles.svgIcon.width} height={responsiveStyles.svgIcon.height} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
                   stroke="#666666"
@@ -346,7 +436,7 @@ const Login = () => {
                   strokeLinejoin="round"
                 />
               </Svg>
-              <Text style={styles.infoText}>Keep your phone password protected and don't share them.</Text>
+              <Text style={[styles.infoText, responsiveStyles.infoSectionText]}>Keep your phone password protected and don't share them.</Text>
             </View>
           </Animated.View>
         )}
@@ -356,12 +446,13 @@ const Login = () => {
       <Animated.View 
         style={[
           styles.buttonContainer,
+          responsiveStyles.buttonContainer,
           {
             opacity: fadeAnim,
             transform: isKeyboardVisible 
               ? [{ translateY: inputFocusAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, -20]
+                  outputRange: [0, -20 * scale]
                 })}] 
               : [{ translateY: 0 }]
           }
@@ -370,6 +461,7 @@ const Login = () => {
         <TouchableOpacity 
           style={[
             styles.continueButton, 
+            responsiveStyles.continueButton,
             isPhoneValid ? styles.activeButton : styles.inactiveButton,
             loading && styles.loadingButton
           ]}
@@ -383,12 +475,14 @@ const Login = () => {
             <>
               <Text style={[
                 styles.buttonText, 
+                responsiveStyles.buttonText,
                 isPhoneValid ? styles.activeButtonText : styles.inactiveButtonText
               ]}>
                 Continue
               </Text>
               <View style={[
                 styles.arrowContainer,
+                responsiveStyles.arrowContainer,
                 isPhoneValid ? styles.activeArrowContainer : styles.inactiveArrowContainer
               ]}>
                 <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -406,10 +500,10 @@ const Login = () => {
         </TouchableOpacity>
 
         {/* Sign Up Option */}
-        <View style={styles.signUpContainer}>
-          <Text style={styles.signUpText}>Don't have an account?</Text>
+        <View style={[styles.signUpContainer, responsiveStyles.signUpContainer]}>
+          <Text style={[styles.signUpText, responsiveStyles.signUpText]}>Don't have an account?</Text>
           <TouchableOpacity onPress={handleSignUp}>
-            <Text style={styles.signUpActionText}>Get Started</Text>
+            <Text style={[styles.signUpActionText, responsiveStyles.signUpActionText]}>Get Started</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -433,38 +527,27 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    marginBottom: 20,
   },
   backButton: {
-    width: 40,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   formContainer: {
     flex: 1,
-    paddingHorizontal: 24,
     justifyContent: 'flex-start',
   },
   titleContainer: {
-    marginTop: height * 0.04,
-    marginBottom: 32,
+    justifyContent: 'flex-start',
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 28,
     fontWeight: '700',
     marginBottom: 8,
   },
   subtitle: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
     fontWeight: '400',
-    lineHeight: 20,
   },
   inputContainer: {
     marginBottom: 20,
@@ -473,12 +556,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.12)',
     padding: 6,
-    marginBottom: 16,
-    height: 60,
   },
   phoneInputContainerError: {
     borderColor: '#FF3B30',
@@ -490,7 +570,6 @@ const styles = StyleSheet.create({
   },
   countryCode: {
     color: '#FFFFFF',
-    fontSize: 16,
     fontWeight: '600',
   },
   divider: {
@@ -502,16 +581,15 @@ const styles = StyleSheet.create({
   phoneInput: {
     flex: 1,
     color: '#FFFFFF',
-    fontSize: 18,
     padding: 0,
     letterSpacing: 0.5,
   },
   errorContainer: {
     marginTop: 8,
+    paddingLeft: 4,
   },
   errorText: {
     color: '#FF3B30',
-    fontSize: 12,
     fontWeight: '500',
   },
   infoSection: {
@@ -529,22 +607,16 @@ const styles = StyleSheet.create({
   },
   infoText: {
     color: '#999999',
-    fontSize: 12,
     marginLeft: 8,
     flex: 1,
   },
   buttonContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 30,
     paddingTop: 10,
   },
   continueButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 56,
-    borderRadius: 28,
-    marginBottom: 16,
   },
   activeButton: {
     backgroundColor: '#FFFFFF',
@@ -558,7 +630,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   buttonText: {
-    fontSize: 16,
     fontWeight: '600',
     marginRight: 8,
   },
@@ -569,9 +640,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.5)',
   },
   arrowContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -588,14 +656,11 @@ const styles = StyleSheet.create({
   },
   signUpText: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
   },
   signUpActionText: {
     color: '#00A3FF',
-    fontSize: 14,
-    fontWeight: '600',
     marginLeft: 4,
   },
 });
 
-export default Login;
+export default Login; 

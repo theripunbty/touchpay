@@ -31,6 +31,12 @@ import PaymentSuccess from '@screens/main/features/success/PaymentSuccess';
 import SnowHome from '@screens/main/explore/SnowHome';
 import Game from '@screens/main/explore/gamification/Game';
 import Transact from '@screens/main/explore/records/Transact';
+import Billings from '@screens/main/explore/billings/Billings';
+import Invite from '@screens/main/explore/invite/Invite';
+import Autopay from '@screens/main/explore/autopay/Autopay';
+import TotalSpents from '@screens/main/features/TotalSpents';
+import Borrow from '@screens/main/borrow/Borrow';
+import ViewDetails from '@screens/main/borrow/view/ViewDetails';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -198,6 +204,45 @@ const AppNavigator = () => {
           component={Transact}
           options={{
             contentStyle: { backgroundColor: '#ffffff' },
+          }}
+        />
+        <Stack.Screen
+          name="Billings"
+          component={Billings}
+          options={{
+            contentStyle: { backgroundColor: '#ffffff' },
+          }}
+        />
+        <Stack.Screen
+          name="Invite"
+          component={Invite}
+          options={{
+            contentStyle: { backgroundColor: '#ffffff' },
+          }}
+        />
+        <Stack.Screen
+          name="Autopay"
+          component={Autopay}
+          options={{
+            contentStyle: { backgroundColor: '#ffffff' },
+          }}
+        />
+        <Stack.Screen
+          name="TotalSpents"
+          component={TotalSpents}
+        />
+        <Stack.Screen
+          name="Borrow"
+          component={Borrow}
+          options={{
+            contentStyle: { backgroundColor: '#000000' },
+          }}
+        />
+        <Stack.Screen
+          name="ViewDetails"
+          component={ViewDetails}
+          options={{
+            contentStyle: { backgroundColor: '#000000' },
           }}
         />
       </Stack.Navigator>

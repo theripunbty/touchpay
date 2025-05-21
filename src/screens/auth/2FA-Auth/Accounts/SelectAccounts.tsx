@@ -21,6 +21,12 @@ import UPIIcon from "@assets/banks/upi.svg";
 
 const { width, height } = Dimensions.get('window');
 
+// Define responsive scaling factors
+const isTablet = width > 768;
+const isSmallPhone = width < 375;
+const scale = Math.min(width / 375, height / 812);
+const fontScale = Math.max(0.85, Math.min(scale * (isTablet ? 1.1 : 1), 1.3));
+
 // Bank data - Popular banks with their logos
 const popularBanks = [
   { id: '1', name: 'SBI', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/SBI-logo.svg/1024px-SBI-logo.svg.png' },
@@ -39,10 +45,105 @@ const allBanks = [
   // Add more banks as needed
 ];
 
+// Responsive styles calculation
+const getResponsiveStyles = () => {
+  return {
+    header: {
+      paddingHorizontal: width * 0.06,
+      paddingTop: height * 0.02,
+      marginBottom: height * 0.015,
+    },
+    backButton: {
+      width: Math.max(32, 40 * scale),
+      height: Math.max(32, 40 * scale),
+      borderRadius: Math.max(16, 20 * scale),
+    },
+    titleContainer: {
+      paddingHorizontal: width * 0.06,
+      marginTop: height * (isTablet ? 0.03 : isSmallPhone ? 0.015 : 0.02),
+      marginBottom: height * 0.03,
+    },
+    title: {
+      fontSize: Math.min(32, Math.max(24, 28 * fontScale)),
+      marginBottom: height * 0.01,
+    },
+    subtitle: {
+      fontSize: Math.max(13, 16 * fontScale),
+    },
+    searchContainer: {
+      paddingHorizontal: width * 0.06,
+      marginBottom: height * 0.03,
+    },
+    searchInputContainer: {
+      height: Math.max(44, 50 * scale),
+      borderRadius: Math.max(10, 12 * scale),
+      paddingHorizontal: width * 0.04,
+    },
+    searchInput: {
+      fontSize: Math.max(14, 16 * fontScale),
+    },
+    sectionContainer: {
+      paddingHorizontal: width * 0.06,
+      marginBottom: height * 0.035,
+    },
+    sectionTitle: {
+      fontSize: Math.max(15, 18 * fontScale),
+      marginBottom: height * 0.02,
+      paddingLeft: width * 0.01,
+    },
+    popularBanksContainer: {
+      paddingVertical: height * 0.01,
+      paddingHorizontal: width * 0.01,
+    },
+    popularBankItem: {
+      width: Math.min(width * 0.2, 80),
+      marginRight: width * 0.04,
+    },
+    popularBankLogo: {
+      width: Math.min(width * 0.13, 54),
+      height: Math.min(width * 0.13, 54),
+      borderRadius: Math.min(width * 0.065, 27),
+      marginBottom: height * 0.012,
+    },
+    popularBankName: {
+      fontSize: Math.max(10, 12 * fontScale),
+    },
+    allBankItem: {
+      paddingVertical: height * 0.018,
+      paddingHorizontal: width * 0.01,
+    },
+    allBankLogo: {
+      width: Math.max(40, 50 * scale),
+      height: Math.max(40, 50 * scale),
+      borderRadius: Math.max(20, 25 * scale),
+      marginRight: width * 0.04,
+    },
+    allBankName: {
+      fontSize: Math.max(13, 14 * fontScale),
+    },
+    allBanksContent: {
+      paddingTop: height * 0.01,
+    },
+    upiFooter: {
+      paddingVertical: height * 0.015,
+    },
+    poweredByText: {
+      fontSize: Math.max(9, 10 * fontScale),
+      marginRight: width * 0.02,
+    },
+    footerSpacer: {
+      height: height * 0.03,
+    }
+  };
+};
+
 const SelectAccounts = () => {
   const navigation = useNavigation<SelectAccountsScreenNavigationProp>();
   const [searchQuery, setSearchQuery] = useState('');
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  
+  // Get responsive styles
+  const responsiveStyles = getResponsiveStyles();
   
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -113,42 +214,6 @@ const SelectAccounts = () => {
     navigation.navigate('LinkAccounts');
   };
 
-  // Render popular bank item
-  const renderPopularBank = ({ item }: { item: typeof popularBanks[0] }) => (
-    <TouchableOpacity
-      style={styles.popularBankItem}
-      onPress={() => handleBankSelection(item.id)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.popularBankLogo}>
-        <Image 
-          source={{ uri: item.logo }} 
-          style={styles.popularBankLogoImage}
-          resizeMode="contain"
-        />
-      </View>
-      <Text style={styles.popularBankName}>{item.name}</Text>
-    </TouchableOpacity>
-  );
-
-  // Render all bank item
-  const renderAllBank = ({ item }: { item: typeof allBanks[0] }) => (
-    <TouchableOpacity
-      style={styles.allBankItem}
-      onPress={() => handleBankSelection(item.id)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.allBankLogo}>
-        <Image 
-          source={{ uri: item.logo }} 
-          style={styles.allBankLogoImage}
-          resizeMode="contain"
-        />
-      </View>
-      <Text style={styles.allBankName}>{item.name}</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -202,9 +267,9 @@ const SelectAccounts = () => {
       </View>
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, responsiveStyles.header]}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, responsiveStyles.backButton]}
           onPress={() => navigation.goBack()}
         >
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -223,6 +288,7 @@ const SelectAccounts = () => {
       <Animated.View 
         style={[
           styles.titleContainer,
+          responsiveStyles.titleContainer,
           {
             opacity: fadeAnim,
             transform: [
@@ -232,21 +298,22 @@ const SelectAccounts = () => {
           }
         ]}
       >
-        <Text style={styles.title}>Select bank account</Text>
-        <Text style={styles.subtitle}>To setup touchpay UPI</Text>
+        <Text style={[styles.title, responsiveStyles.title]}>Select bank account</Text>
+        <Text style={[styles.subtitle, responsiveStyles.subtitle]}>To setup touchpay UPI</Text>
       </Animated.View>
 
       {/* Fixed Search Input */}
       <Animated.View 
         style={[
           styles.searchContainer,
+          responsiveStyles.searchContainer,
           {
             opacity: fadeAnim,
             transform: [{ translateY: Animated.multiply(slideAnim, 1.2) }]
           }
         ]}
       >
-        <View style={styles.searchInputContainer}>
+        <View style={[styles.searchInputContainer, responsiveStyles.searchInputContainer]}>
           <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={styles.searchIcon}>
             <Path 
               d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" 
@@ -257,7 +324,7 @@ const SelectAccounts = () => {
             />
           </Svg>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, responsiveStyles.searchInput]}
             value={searchQuery}
             onChangeText={handleSearchChange}
             placeholder="Search"
@@ -279,20 +346,36 @@ const SelectAccounts = () => {
                 key="popular-banks-section"
                 style={[
                   styles.sectionContainer,
+                  responsiveStyles.sectionContainer,
                   {
                     opacity: fadeAnim,
                     transform: [{ translateY: Animated.multiply(slideAnim, 1.4) }]
                   }
                 ]}
               >
-                <Text style={styles.sectionTitle}>Popular banks</Text>
+                <Text style={[styles.sectionTitle, responsiveStyles.sectionTitle]}>Popular banks</Text>
                 <FlatList
                   data={item.data}
-                  renderItem={renderPopularBank}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={[styles.popularBankItem, responsiveStyles.popularBankItem]}
+                      onPress={() => handleBankSelection(item.id)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.popularBankLogo, responsiveStyles.popularBankLogo]}>
+                        <Image 
+                          source={{ uri: item.logo }} 
+                          style={styles.popularBankLogoImage}
+                          resizeMode="contain"
+                        />
+                      </View>
+                      <Text style={[styles.popularBankName, responsiveStyles.popularBankName]}>{item.name}</Text>
+                    </TouchableOpacity>
+                  )}
                   keyExtractor={item => `popular-${item.id}`}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.popularBanksContainer}
+                  contentContainerStyle={[styles.popularBanksContainer, responsiveStyles.popularBanksContainer]}
                   scrollEnabled={true}
                 />
               </Animated.View>
@@ -303,18 +386,33 @@ const SelectAccounts = () => {
                 key="all-banks-section"
                 style={[
                   styles.sectionContainer,
+                  responsiveStyles.sectionContainer,
                   {
                     opacity: fadeAnim,
                     transform: [{ translateY: Animated.multiply(slideAnim, 1.6) }]
                   }
                 ]}
               >
-                <Text style={styles.sectionTitle}>All banks</Text>
-                {item.data.map((bank) => (
-                  <View key={`all-${bank.id}`}>
-                    {renderAllBank({ item: bank })}
-                  </View>
-                ))}
+                <Text style={[styles.sectionTitle, responsiveStyles.sectionTitle]}>All banks</Text>
+                <View style={responsiveStyles.allBanksContent}>
+                  {item.data.map((bank) => (
+                    <TouchableOpacity
+                      key={`all-${bank.id}`}
+                      style={[styles.allBankItem, responsiveStyles.allBankItem]}
+                      onPress={() => handleBankSelection(bank.id)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.allBankLogo, responsiveStyles.allBankLogo]}>
+                        <Image 
+                          source={{ uri: bank.logo }} 
+                          style={styles.allBankLogoImage}
+                          resizeMode="contain"
+                        />
+                      </View>
+                      <Text style={[styles.allBankName, responsiveStyles.allBankName]}>{bank.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </Animated.View>
             );
           }
@@ -323,16 +421,15 @@ const SelectAccounts = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.allBanksContainer}
         ListFooterComponent={() => (
-          <View style={styles.footerSpacer} />
+          <View style={[styles.footerSpacer, responsiveStyles.footerSpacer]} />
         )}
       />
 
       {/* Fixed UPI Powered Logo at Bottom */}
       {!isKeyboardVisible && (
-        <View style={styles.upiFooter}>
-          <Text style={styles.poweredByText}>powered by</Text>
-          <UPIIcon  width={40} height={15}/>
-
+        <View style={[styles.upiFooter, responsiveStyles.upiFooter]}>
+          <Text style={[styles.poweredByText, responsiveStyles.poweredByText]}>powered by</Text>
+          <UPIIcon width={isTablet ? 50 : 40} height={isTablet ? 18 : 15}/>
         </View>
       )}
     </SafeAreaView>
@@ -349,7 +446,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContentContainer: {
-    paddingHorizontal: 24,
     paddingBottom: 20,
   },
   backgroundElements: {
@@ -362,48 +458,32 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    marginBottom: 5,
   },
   backButton: {
-    width: 40,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   titleContainer: {
-    paddingHorizontal: 24,
     marginTop: height * 0.02,
-    marginBottom: 10,
   },
   title: {
     color: '#000000',
-    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 5,
   },
   subtitle: {
     color: 'rgba(0, 0, 0, 0.7)',
-    fontSize: 16,
     fontWeight: '400',
   },
   searchContainer: {
-    paddingHorizontal: 24,
-    marginBottom: 20,
     marginTop: 20,
   },
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgb(255, 255, 255)',
-    borderRadius: 12,
     borderWidth: 1.2,
     borderColor: 'rgba(0, 0, 0, 0.12)',
-    paddingHorizontal: 15,
-    height: 50,
   },
   searchIcon: {
     marginRight: 10,
@@ -411,7 +491,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: '#000000',
-    fontSize: 16,
     padding: 0,
   },
   sectionContainer: {
@@ -419,71 +498,54 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#000000',
-    fontSize: 18,
     fontWeight: '600',
-    marginBottom: 15,
   },
   popularBanksContainer: {
     paddingRight: 0,
-    paddingBottom: 10,
   },
   popularBankItem: {
     alignItems: 'center',
-    marginRight: 10,
-    width: 70,
   },
   popularBankLogo: {
-    width: 50,
-    height: 50,
-    borderRadius: 30,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    marginBottom: 8,
   },
   popularBankLogoImage: {
-    width: 35,
-    height: 35,
+    width: '70%',
+    height: '70%',
   },
   popularBankName: {
     color: '#000000',
-    fontSize: 12,
     fontWeight: '500',
     textAlign: 'center',
   },
   allBanksContainer: {
-    paddingHorizontal: 24,
     paddingBottom: 20,
   },
   allBankItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   allBankLogo: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
     backgroundColor: 'rgb(255, 255, 255)',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    marginRight: 15,
   },
   allBankLogoImage: {
-    width: 30,
-    height: 30,
+    width: '60%',
+    height: '60%',
   },
   allBankName: {
     color: '#000000',
-    fontSize: 14,
     fontWeight: '500',
     flex: 1,
   },
@@ -491,15 +553,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
   poweredByText: {
     color: 'rgba(0, 0, 0, 0.5)',
-    fontSize: 10,
-    marginRight: 5,
   },
   footerSpacer: {
     height: 20,

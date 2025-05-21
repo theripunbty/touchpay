@@ -16,13 +16,56 @@ import Svg, { Path, Circle, G } from 'react-native-svg';
 import { RootStackParamList, VerifyLinkingScreenNavigationProp } from '../../../../types/navigation';
 import LinearGradient from 'react-native-linear-gradient';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+
+// Define responsive scaling factors
+const isTablet = width > 768;
+const isSmallPhone = width < 375;
+const scale = Math.min(width / 375, height / 812);
+const fontScale = Math.max(0.85, Math.min(scale * (isTablet ? 1.1 : 1), 1.3));
+
+// Responsive styles calculation
+const getResponsiveStyles = () => {
+  return {
+    header: {
+      paddingHorizontal: width * 0.06,
+      paddingVertical: height * 0.02,
+    },
+    backButton: {
+      width: Math.max(28, 32 * scale),
+      height: Math.max(28, 32 * scale),
+      borderRadius: Math.max(14, 16 * scale),
+    },
+    headerTitle: {
+      fontSize: Math.max(16, 18 * fontScale),
+    },
+    contentContainer: {
+      paddingHorizontal: width * 0.06,
+    },
+    statusTitle: {
+      fontSize: Math.max(18, 20 * fontScale),
+      marginTop: isTablet ? -height * 0.08 : -60,
+      marginBottom: height * 0.01,
+    },
+    statusSubtitle: {
+      fontSize: Math.max(12, 14 * fontScale),
+      marginBottom: height * 0.03,
+    },
+    progressContainer: {
+      width: isTablet ? '70%' as const : '80%' as const,
+      marginTop: height * 0.04,
+    }
+  };
+};
 
 type VerifyLinkingRouteProp = RouteProp<RootStackParamList, 'VerifyLinking'>;
 
 const VerifyLinking = () => {
   const navigation = useNavigation<VerifyLinkingScreenNavigationProp>();
   const route = useRoute<VerifyLinkingRouteProp>();
+  
+  // Get responsive styles
+  const responsiveStyles = getResponsiveStyles();
   
   const { bankName, accountId, maskedAccountNumber, ifsc, accRefNumber } = route.params || {
     bankName: 'Your Bank',
@@ -64,7 +107,11 @@ const VerifyLinking = () => {
 
     // Simulate completion after animation finishes
     const timer = setTimeout(() => {
-      navigation.navigate('Home');
+      // Navigate to the correct screen after verification
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     }, 5000);
 
     return () => {
@@ -84,17 +131,17 @@ const VerifyLinking = () => {
 
   return (
     <LinearGradient 
-      colors={['#0F0F2D', '#0F0F2D']} 
+      colors={['#000000', '#000000']} 
       style={styles.container}
       start={{x: 0, y: 0}}
       end={{x: 1, y: 1}}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#0F0F2D" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       
       {/* Header */}
-      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
+      <Animated.View style={[styles.header, responsiveStyles.header, { opacity: fadeAnim }]}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, responsiveStyles.backButton]}
           onPress={() => navigation.goBack()}
         >
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -107,18 +154,18 @@ const VerifyLinking = () => {
             />
           </Svg>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Account Verification</Text>
+        <Text style={[styles.headerTitle, responsiveStyles.headerTitle]}>Account Verification</Text>
         <View style={{width: 24}} />
       </Animated.View>
 
-      <Animated.View style={[styles.contentContainer, { opacity: fadeAnim }]}>
+      <Animated.View style={[styles.contentContainer, responsiveStyles.contentContainer, { opacity: fadeAnim }]}>
         {/* Verification Status */}
         <View style={styles.statusContainer}>
-          <Text style={styles.statusTitle}>Verifying...</Text>
-          <Text style={styles.statusSubtitle}>This usually takes less than 30 seconds</Text>
+          <Text style={[styles.statusTitle, responsiveStyles.statusTitle]}>Verifying...</Text>
+          <Text style={[styles.statusSubtitle, responsiveStyles.statusSubtitle]}>This usually takes less than 30 seconds</Text>
           
           {/* Additional smooth progress bar */}
-          <View style={styles.progressContainer}>
+          <View style={[styles.progressContainer, responsiveStyles.progressContainer]}>
             <View style={styles.progressBackground} />
             <Animated.View style={[styles.progressBar, { width: progressWidth }]} />
           </View>

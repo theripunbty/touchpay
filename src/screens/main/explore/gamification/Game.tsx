@@ -204,7 +204,7 @@ const Game: React.FC<GameProps> = ({ navigation }) => {
             style={styles.leaderCard}
           >
             <View style={styles.leaderInfo}>
-              <Text style={styles.leaderLabel}>Total cashback</Text>
+              <Text style={styles.leaderLabel}>Lifetime cashback</Text>
               <Text style={styles.leaderName}>₹ 400</Text>
               
               <View style={styles.winterStormContainer}>

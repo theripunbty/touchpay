@@ -25,6 +25,12 @@ import { api, authService } from '../../../../utils/apiService';
 
 const { width, height } = Dimensions.get('window');
 
+// Define responsive scaling factors
+const isTablet = width > 768;
+const isSmallPhone = width < 375;
+const scale = Math.min(width / 375, height / 812);
+const fontScale = Math.max(0.85, Math.min(scale * (isTablet ? 1.1 : 1), 1.3));
+
 // Define types for the API request and response
 interface BankAccount {
   id: string;
@@ -151,6 +157,84 @@ const generateFallbackId = (): string => {
   return fallbackId;
 };
 
+// Responsive styles calculation
+const getResponsiveStyles = () => {
+  return {
+    header: {
+      paddingHorizontal: width * 0.05,
+      paddingTop: height * 0.01,
+      marginBottom: height * 0.02,
+    },
+    backButton: {
+      width: Math.max(32, 40 * scale),
+      height: Math.max(32, 40 * scale),
+      borderRadius: Math.max(16, 20 * scale),
+    },
+    stepIndicator: {
+      fontSize: Math.max(11, 12 * fontScale),
+    },
+    title: {
+      fontSize: Math.min(32, Math.max(24, 28 * fontScale)),
+      marginBottom: height * 0.01,
+    },
+    subtitle: {
+      fontSize: Math.max(13, 14 * fontScale),
+      lineHeight: Math.max(19, 20 * fontScale),
+    },
+    formContainer: {
+      paddingHorizontal: width * 0.06,
+    },
+    titleContainer: {
+      marginTop: height * (isTablet ? 0.05 : isSmallPhone ? 0.02 : 0.03),
+      marginBottom: height * (isTablet ? 0.04 : 0.03),
+    },
+    bankListContainer: {
+      marginTop: height * 0.02,
+    },
+    bankItem: {
+      padding: width * 0.04,
+      marginBottom: height * 0.015,
+      borderRadius: Math.max(10, 12 * scale),
+    },
+    bankLogo: {
+      width: Math.max(40, 44 * scale),
+      height: Math.max(40, 44 * scale),
+      borderRadius: Math.max(20, 22 * scale),
+      marginRight: width * 0.04,
+    },
+    bankName: {
+      fontSize: Math.max(14, 16 * fontScale),
+    },
+    accountNumber: {
+      fontSize: Math.max(12, 14 * fontScale),
+    },
+    accountType: {
+      fontSize: Math.max(11, 13 * fontScale),
+    },
+    linkButton: {
+      height: Math.max(50, Math.min(56 * scale, 60)),
+      borderRadius: Math.max(25, Math.min(28 * scale, 30)),
+    },
+    buttonText: {
+      fontSize: Math.max(14, 16 * fontScale),
+    },
+    emptyStateTitle: {
+      fontSize: Math.max(16, 18 * fontScale), 
+    },
+    emptyStateDescription: {
+      fontSize: Math.max(12, 14 * fontScale),
+      lineHeight: Math.max(18, 20 * fontScale),
+    },
+    infoTitle: {
+      fontSize: Math.max(13, 15 * fontScale),
+    },
+    infoDescription: {
+      fontSize: Math.max(11, 13 * fontScale),
+      lineHeight: Math.max(16, 18 * fontScale),
+    }
+  };
+};
+
 const LinkAccounts = () => {
   const navigation = useNavigation<LinkAccountsScreenNavigationProp>();
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -165,6 +249,9 @@ const LinkAccounts = () => {
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const inputFocusAnim = useRef(new Animated.Value(0)).current;
   const loadingAnim = useRef(new Animated.Value(0)).current;
+
+  // Get responsive styles
+  const responsiveStyles = getResponsiveStyles();
 
   // Loading component
   const LoadingState = () => (
@@ -680,9 +767,9 @@ const LinkAccounts = () => {
       </View>
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, responsiveStyles.header]}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, responsiveStyles.backButton]}
           onPress={() => navigation.goBack()}
         >
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -696,7 +783,7 @@ const LinkAccounts = () => {
           </Svg>
         </TouchableOpacity>
         <View style={styles.stepIndicatorContainer}>
-          <Text style={styles.stepIndicator}>Step 3 of 3</Text>
+          <Text style={[styles.stepIndicator, responsiveStyles.stepIndicator]}>Step 3 of 3</Text>
           <View style={styles.stepProgressContainer}>
             <View style={styles.stepProgressActive} />
             <View style={styles.stepProgressActive} />
@@ -707,7 +794,7 @@ const LinkAccounts = () => {
 
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.formContainer}
+        style={[styles.formContainer, responsiveStyles.formContainer]}
       >
         {isLoading ? (
           <LoadingState />
@@ -719,6 +806,7 @@ const LinkAccounts = () => {
             <Animated.View 
               style={[
                 styles.titleContainer,
+                responsiveStyles.titleContainer,
                 {
                   opacity: fadeAnim,
                   transform: [
@@ -728,14 +816,15 @@ const LinkAccounts = () => {
                 }
               ]}
             >
-              <Text style={styles.title}>Your Bank Accounts</Text>
-              <Text style={styles.subtitle}>Select the account you want to link with UPI</Text>
+              <Text style={[styles.title, responsiveStyles.title]}>Your Bank Accounts</Text>
+              <Text style={[styles.subtitle, responsiveStyles.subtitle]}>Select the account you want to link with UPI</Text>
             </Animated.View>
 
             {/* Bank Account List */}
             <Animated.View 
               style={[
                 styles.bankListContainer,
+                responsiveStyles.bankListContainer,
                 {
                   opacity: fadeAnim,
                   transform: [{ translateY: Animated.multiply(slideAnim, 1.3) }]
@@ -752,12 +841,13 @@ const LinkAccounts = () => {
                     <TouchableOpacity
                       style={[
                         styles.bankItem,
+                        responsiveStyles.bankItem,
                         selectedAccount === item.id && styles.selectedBankItem
                       ]}
                       onPress={() => handleAccountSelection(item.id)}
                       activeOpacity={0.7}
                     >
-                      <View style={styles.bankLogo}>
+                      <View style={[styles.bankLogo, responsiveStyles.bankLogo]}>
                         {item.logo.startsWith('http') ? (
                           <Image 
                             source={{ uri: item.logo }} 
@@ -770,10 +860,10 @@ const LinkAccounts = () => {
                       </View>
                       <View style={styles.bankDetails}>
                         <View style={styles.bankNameContainer}>
-                          <Text style={styles.bankName}>{item.bankName}</Text>
-                          <Text style={styles.accountNumber}>{item.displayNumber}</Text>
+                          <Text style={[styles.bankName, responsiveStyles.bankName]}>{item.bankName}</Text>
+                          <Text style={[styles.accountNumber, responsiveStyles.accountNumber]}>{item.displayNumber}</Text>
                         </View>
-                        <Text style={styles.accountType}>{item.accountType}</Text>
+                        <Text style={[styles.accountType, responsiveStyles.accountType]}>{item.accountType}</Text>
                       </View>
                       <View style={[
                         styles.radioButton,
@@ -813,8 +903,8 @@ const LinkAccounts = () => {
                         />
                       </Svg>
                     </View>
-                    <Text style={styles.emptyStateTitle}>No Bank Accounts Found</Text>
-                    <Text style={styles.emptyStateDescription}>
+                    <Text style={[styles.emptyStateTitle, responsiveStyles.emptyStateTitle]}>No Bank Accounts Found</Text>
+                    <Text style={[styles.emptyStateDescription, responsiveStyles.emptyStateDescription]}>
                       We couldn't find any bank accounts linked to your mobile number. You need to have an existing bank account that supports UPI.
                     </Text>
                   </View>
@@ -847,8 +937,8 @@ const LinkAccounts = () => {
                         </Svg>
                       </View>
                       <View style={styles.infoTextContainer}>
-                        <Text style={styles.infoTitle}>Why link a bank account?</Text>
-                        <Text style={styles.infoDescription}>
+                        <Text style={[styles.infoTitle, responsiveStyles.infoTitle]}>Why link a bank account?</Text>
+                        <Text style={[styles.infoDescription, responsiveStyles.infoDescription]}>
                           Linking your bank account allows you to send and receive money instantly
                         </Text>
                       </View>
@@ -880,8 +970,8 @@ const LinkAccounts = () => {
                         </Svg>
                       </View>
                       <View style={styles.infoTextContainer}>
-                        <Text style={styles.infoTitle}>Need to add a bank account?</Text>
-                        <Text style={styles.infoDescription}>
+                        <Text style={[styles.infoTitle, responsiveStyles.infoTitle]}>Need to add a bank account?</Text>
+                        <Text style={[styles.infoDescription, responsiveStyles.infoDescription]}>
                           Please visit your bank branch or use your bank's mobile app to create an account and enable it for UPI
                         </Text>
                       </View>
@@ -900,6 +990,8 @@ const LinkAccounts = () => {
           style={[
             styles.buttonContainer,
             {
+              paddingHorizontal: width * 0.06,
+              paddingBottom: isTablet ? height * 0.05 : height * 0.04,
               opacity: fadeAnim,
               transform: isKeyboardVisible 
                 ? [{ translateY: inputFocusAnim.interpolate({
@@ -913,6 +1005,7 @@ const LinkAccounts = () => {
           <TouchableOpacity 
             style={[
               styles.linkButton, 
+              responsiveStyles.linkButton,
               selectedAccount ? styles.activeButton : styles.inactiveButton
             ]}
             onPress={handleContinue}
@@ -921,6 +1014,7 @@ const LinkAccounts = () => {
           >
             <Text style={[
               styles.buttonText, 
+              responsiveStyles.buttonText,
               selectedAccount ? styles.activeButtonText : styles.inactiveButtonText
             ]}>
               Link Account

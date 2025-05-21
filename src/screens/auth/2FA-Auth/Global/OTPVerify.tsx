@@ -7,7 +7,7 @@ import {
   TextInput,
   SafeAreaView,
   StatusBar,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   KeyboardAvoidingView,
   Platform,
@@ -25,8 +25,6 @@ type OTPVerifyRouteProps = RouteProp<{
   };
 }, 'params'>;
 
-const { width, height } = Dimensions.get('window');
-
 const OTPVerify = () => {
   const navigation = useNavigation<OTPVerifyScreenNavigationProp>();
   const route = useRoute<OTPVerifyRouteProps>();
@@ -41,6 +39,96 @@ const OTPVerify = () => {
   const [canResend, setCanResend] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Get current device dimensions
+  const { width, height } = useWindowDimensions();
+
+  // Calculate responsive sizing factors
+  const isTablet = width > 768;
+  const isSmallPhone = width < 375;
+  const isLargePhone = width >= 414 && width < 768;
+  
+  // Base scaling factor
+  const scale = Math.min(width / 375, height / 812);
+  const fontScale = Math.max(0.85, Math.min(scale * (isTablet ? 1.1 : 1), 1.3));
+
+  // Responsive styles
+  const responsiveStyles = {
+    headerPadding: {
+      paddingHorizontal: width * 0.05,
+      paddingTop: height * 0.01,
+      marginBottom: height * 0.025,
+    },
+    backButton: {
+      width: Math.max(36, 40 * scale),
+      height: Math.max(36, 40 * scale),
+      borderRadius: Math.max(18, 20 * scale),
+    },
+    stepIndicator: {
+      fontSize: Math.max(11, 12 * fontScale),
+    },
+    title: {
+      fontSize: Math.min(32, Math.max(24, 28 * fontScale)),
+      marginBottom: height * 0.01,
+    },
+    subtitle: {
+      fontSize: Math.max(13, 14 * fontScale),
+      lineHeight: Math.max(19, 20 * fontScale), 
+    },
+    formContainer: {
+      paddingHorizontal: width * 0.06,
+    },
+    titleContainer: {
+      marginTop: height * (isTablet ? 0.06 : isSmallPhone ? 0.03 : 0.04),
+      marginBottom: height * (isTablet ? 0.05 : 0.04),
+    },
+    otpInputRow: {
+      marginBottom: height * 0.03,
+    },
+    otpInputBox: {
+      width: Math.min(width / 8, 50 * scale),
+      height: Math.min(width / 7, 60 * scale),
+      borderRadius: Math.max(10, 12 * scale),
+      marginHorizontal: width * 0.005,
+    },
+    otpInput: {
+      fontSize: Math.max(18, 22 * fontScale),
+    },
+    errorText: {
+      fontSize: Math.max(11, 12 * fontScale),
+    },
+    resendText: {
+      fontSize: Math.max(13, 14 * fontScale),
+    },
+    resendActionText: {
+      fontSize: Math.max(13, 14 * fontScale),
+      fontWeight: "600" as const,
+    },
+    infoSectionText: {
+      fontSize: Math.max(11, 12 * fontScale),
+    },
+    buttonContainer: {
+      paddingHorizontal: width * 0.06,
+      paddingBottom: isTablet ? height * 0.05 : height * 0.04,
+    },
+    verifyButton: {
+      height: Math.max(50, Math.min(56 * scale, 65)),
+      borderRadius: Math.max(25, Math.min(28 * scale, 32)),
+      marginBottom: height * 0.02,
+    },
+    buttonText: {
+      fontSize: Math.max(15, 16 * fontScale),
+    },
+    svgIcon: {
+      width: Math.max(16, 18 * scale),
+      height: Math.max(16, 18 * scale),
+    },
+    arrowContainer: {
+      width: Math.max(28, 32 * scale),
+      height: Math.max(28, 32 * scale),
+      borderRadius: Math.max(14, 16 * scale),
+    }
+  };
   
   // Refs for input fields
   const inputRefs = useRef<Array<TextInput | null>>([]);
@@ -143,8 +231,20 @@ const OTPVerify = () => {
 
   // Handle backspace key
   const handleKeyPress = (e: any, index: number) => {
-    if (e.nativeEvent.key === 'Backspace' && index > 0 && otp[index] === '') {
-      inputRefs.current[index - 1]?.focus();
+    if (e.nativeEvent.key === 'Backspace') {
+      // If current input has a value, just clear it
+      if (otp[index] !== '') {
+        const newOtp = [...otp];
+        newOtp[index] = '';
+        setOtp(newOtp);
+      } 
+      // If current input is empty and not the first one, move to previous input
+      else if (index > 0) {
+        const newOtp = [...otp];
+        newOtp[index - 1] = ''; // Clear the previous box too
+        setOtp(newOtp);
+        inputRefs.current[index - 1]?.focus();
+      }
     }
   };
 
@@ -252,8 +352,8 @@ const OTPVerify = () => {
           </Defs>
           
           {/* Enhanced decorative elements */}
-          <Circle cx={width * 0.85} cy={height * 0.15} r="120" fill="url(#gradCircle1)" />
-          <Circle cx={width * 0.1} cy={height * 0.85} r="150" fill="url(#gradCircle2)" />
+          <Circle cx={width * 0.85} cy={height * 0.15} r={Math.min(120, width * 0.25)} fill="url(#gradCircle1)" />
+          <Circle cx={width * 0.1} cy={height * 0.85} r={Math.min(150, width * 0.3)} fill="url(#gradCircle2)" />
           
           {/* Horizontal accent line */}
           <Rect x="0" y={height * 0.3} width={width} height="1.5" fill="url(#gradLine)" />
@@ -293,9 +393,9 @@ const OTPVerify = () => {
       </View>
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, responsiveStyles.headerPadding]}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, responsiveStyles.backButton]}
           onPress={() => navigation.goBack()}
         >
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -309,7 +409,7 @@ const OTPVerify = () => {
           </Svg>
         </TouchableOpacity>
         <View style={styles.stepIndicatorContainer}>
-          <Text style={styles.stepIndicator}>Step 2 of 3</Text>
+          <Text style={[styles.stepIndicator, responsiveStyles.stepIndicator]}>Step 2 of 3</Text>
           <View style={styles.stepProgressContainer}>
             <View style={styles.stepProgressActive} />
             <View style={styles.stepProgressActive} />
@@ -320,12 +420,14 @@ const OTPVerify = () => {
 
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.formContainer}
+        style={[styles.formContainer, responsiveStyles.formContainer]}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       >
         {/* Title and Description */}
         <Animated.View 
           style={[
             styles.titleContainer,
+            responsiveStyles.titleContainer,
             {
               opacity: fadeAnim,
               transform: [
@@ -335,8 +437,8 @@ const OTPVerify = () => {
             }
           ]}
         >
-          <Text style={styles.title}>VERIFY ACCOUNT</Text>
-          <Text style={styles.subtitle}>We've sent a 6-digit code to {maskedPhone}</Text>
+          <Text style={[styles.title, responsiveStyles.title]}>VERIFY ACCOUNT</Text>
+          <Text style={[styles.subtitle, responsiveStyles.subtitle]}>We've sent a 6-digit code to {maskedPhone}</Text>
         </Animated.View>
 
         {/* OTP Input */}
@@ -349,12 +451,13 @@ const OTPVerify = () => {
             }
           ]}
         >
-          <View style={styles.otpInputRow}>
+          <View style={[styles.otpInputRow, responsiveStyles.otpInputRow]}>
             {[0, 1, 2, 3, 4, 5].map((index) => (
               <View 
                 key={index} 
                 style={[
                   styles.otpInputBox,
+                  responsiveStyles.otpInputBox,
                   otp[index] ? styles.otpInputBoxFilled : null,
                   error ? styles.otpInputBoxError : null
                 ]}
@@ -363,7 +466,7 @@ const OTPVerify = () => {
                   ref={(ref) => {
                     inputRefs.current[index] = ref;
                   }}
-                  style={styles.otpInput}
+                  style={[styles.otpInput, responsiveStyles.otpInput]}
                   value={otp[index]}
                   onChangeText={(text) => handleOtpChange(text, index)}
                   keyboardType="number-pad"
@@ -380,13 +483,13 @@ const OTPVerify = () => {
           {/* Error message */}
           {error ? (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={[styles.errorText, responsiveStyles.errorText]}>{error}</Text>
             </View>
           ) : null}
 
           {/* Resend code option */}
           <View style={styles.resendContainer}>
-            <Text style={styles.resendText}>
+            <Text style={[styles.resendText, responsiveStyles.resendText]}>
               Didn't receive the code? 
             </Text>
             <TouchableOpacity 
@@ -395,6 +498,7 @@ const OTPVerify = () => {
             >
               <Text style={[
                 styles.resendActionText,
+                responsiveStyles.resendActionText,
                 (!canResend || loading) && styles.resendDisabled
               ]}>
                 {loading && !canResend ? 'Sending...' : 
@@ -415,7 +519,7 @@ const OTPVerify = () => {
             ]}
           >
             <View style={styles.infoRow}>
-              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <Svg width={responsiveStyles.svgIcon.width} height={responsiveStyles.svgIcon.height} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
                   stroke="#666666"
@@ -438,10 +542,10 @@ const OTPVerify = () => {
                   strokeLinejoin="round"
                 />
               </Svg>
-              <Text style={styles.infoText}>The code will expire in 5 minutes</Text>
+              <Text style={[styles.infoText, responsiveStyles.infoSectionText]}>The code will expire in 5 minutes</Text>
             </View>
             <View style={styles.infoRow}>
-              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <Svg width={responsiveStyles.svgIcon.width} height={responsiveStyles.svgIcon.height} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
                   stroke="#666666"
@@ -464,7 +568,7 @@ const OTPVerify = () => {
                   strokeLinejoin="round"
                 />
               </Svg>
-              <Text style={styles.infoText}>Enter the code exactly as received</Text>
+              <Text style={[styles.infoText, responsiveStyles.infoSectionText]}>Enter the code exactly as received</Text>
             </View>
           </Animated.View>
         )}
@@ -474,12 +578,13 @@ const OTPVerify = () => {
       <Animated.View 
         style={[
           styles.buttonContainer,
+          responsiveStyles.buttonContainer,
           {
             opacity: fadeAnim,
             transform: isKeyboardVisible 
               ? [{ translateY: inputFocusAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, -20]
+                  outputRange: [0, -20 * scale]
                 })}] 
               : [{ translateY: 0 }]
           }
@@ -488,6 +593,7 @@ const OTPVerify = () => {
         <TouchableOpacity 
           style={[
             styles.verifyButton, 
+            responsiveStyles.verifyButton,
             isOtpComplete ? styles.activeButton : styles.inactiveButton,
             loading && styles.loadingButton
           ]}
@@ -501,12 +607,14 @@ const OTPVerify = () => {
             <>
               <Text style={[
                 styles.buttonText, 
+                responsiveStyles.buttonText,
                 isOtpComplete ? styles.activeButtonText : styles.inactiveButtonText
               ]}>
                 Verify
               </Text>
               <View style={[
                 styles.arrowContainer,
+                responsiveStyles.arrowContainer,
                 isOtpComplete ? styles.activeArrowContainer : styles.inactiveArrowContainer
               ]}>
                 <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -544,16 +652,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    marginBottom: 20,
   },
   backButton: {
-    width: 40,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   stepIndicatorContainer: {
@@ -561,7 +663,6 @@ const styles = StyleSheet.create({
   },
   stepIndicator: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 12,
     fontWeight: '500',
     marginBottom: 4,
   },
@@ -583,24 +684,19 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    paddingHorizontal: 24,
     justifyContent: 'flex-start',
   },
   titleContainer: {
-    marginTop: height * 0.04,
-    marginBottom: 32,
+    // Responsive values applied dynamically
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 28,
     fontWeight: '700',
     marginBottom: 8,
   },
   subtitle: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
     fontWeight: '400',
-    lineHeight: 20,
   },
   otpContainer: {
     alignItems: 'center',
@@ -610,17 +706,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 24,
   },
   otpInputBox: {
-    width: width / 8,
-    height: 56,
-    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.12)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   otpInputBoxFilled: {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -633,7 +725,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     color: '#FFFFFF',
-    fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
   },
@@ -643,7 +734,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#FF3B30',
-    fontSize: 12,
     fontWeight: '500',
   },
   resendContainer: {
@@ -654,12 +744,9 @@ const styles = StyleSheet.create({
   },
   resendText: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
   },
   resendActionText: {
     color: '#00A3FF',
-    fontSize: 14,
-    fontWeight: '600',
     marginLeft: 4,
   },
   resendDisabled: {
@@ -680,22 +767,16 @@ const styles = StyleSheet.create({
   },
   infoText: {
     color: '#999999',
-    fontSize: 12,
     marginLeft: 8,
     flex: 1,
   },
   buttonContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 30,
     paddingTop: 10,
   },
   verifyButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 56,
-    borderRadius: 28,
-    marginBottom: 12,
   },
   activeButton: {
     backgroundColor: '#FFFFFF',
@@ -709,7 +790,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   buttonText: {
-    fontSize: 16,
     fontWeight: '600',
     marginRight: 8,
   },
@@ -720,9 +800,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.5)',
   },
   arrowContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

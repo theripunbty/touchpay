@@ -10,7 +10,17 @@ interface Props {
 const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { width, height } = useWindowDimensions();
-  const logoSize = Math.min(width * 0.64, height * 0.64);
+  
+  // Calculate responsive scaling factors
+  const baseWidth = 375; // Standard iPhone width
+  const baseHeight = 812; // Standard iPhone height
+  const scale = Math.min(width / baseWidth, height / baseHeight);
+  
+  // Responsive logo size with min/max constraints - make logo bigger
+  const logoSize = Math.min(
+    Math.max(width * 0.65, 200), 
+    Math.min(width * 0.85, height * 0.85, 500)
+  );
   
   useEffect(() => {
     // Reference for the timer to clean up on unmount
@@ -55,7 +65,13 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
       <Animated.View 
         style={[
           styles.logoContainer,
-          { opacity: fadeAnim }
+          { 
+            opacity: fadeAnim,
+            transform: [{ scale: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.9 * scale, 1 * scale]
+            }) }]
+          }
         ]}
       >
         <Logo width={logoSize} height={logoSize} />

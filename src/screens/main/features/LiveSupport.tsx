@@ -45,11 +45,11 @@ const LiveSupport: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
-  const [showCallOptions, setShowCallOptions] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
   const attachmentAnimation = useRef(new Animated.Value(0)).current;
-  const callOptionsAnimation = useRef(new Animated.Value(0)).current;
+  const rotateAnimation = useRef(new Animated.Value(0)).current;
   const [selectedMedia, setSelectedMedia] = useState<{
     type: 'image' | 'file';
     url: string;
@@ -107,6 +107,35 @@ const LiveSupport: React.FC = () => {
     setMessages(prev => [...prev, newMessage]);
   };
 
+  const refreshChats = () => {
+    setIsRefreshing(true);
+    
+    // Start rotation animation
+    Animated.loop(
+      Animated.timing(rotateAnimation, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      })
+    ).start();
+    
+    // Simulate a loading state
+    setTimeout(() => {
+      // Generate a new agent message to simulate new chats
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        text: "I've just received an update. Your transaction has been processed successfully. Is there anything else you'd like assistance with?",
+        sender: 'agent',
+        timestamp: Date.now(),
+        status: 'delivered',
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      setIsRefreshing(false);
+      rotateAnimation.setValue(0); // Reset rotation
+    }, 1500);
+  };
+
   const sendMessage = () => {
     if (message.trim() === '') return;
 
@@ -159,29 +188,12 @@ const LiveSupport: React.FC = () => {
   };
 
   const toggleAttachmentOptions = () => {
-    setShowCallOptions(false);
     setShowAttachmentOptions(!showAttachmentOptions);
     Animated.timing(attachmentAnimation, {
       toValue: showAttachmentOptions ? 0 : 1,
       duration: 300,
       useNativeDriver: true,
     }).start();
-  };
-
-  const toggleCallOptions = () => {
-    setShowAttachmentOptions(false);
-    setShowCallOptions(!showCallOptions);
-    Animated.timing(callOptionsAnimation, {
-      toValue: showCallOptions ? 0 : 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const initiateCall = (type: 'audio' | 'video') => {
-    // In a real app, this would initiate a call
-    Alert.alert(`${type.charAt(0).toUpperCase() + type.slice(1)} call feature would be implemented here`);
-    setShowCallOptions(false);
   };
 
   const handleBackPress = () => {
@@ -196,10 +208,6 @@ const LiveSupport: React.FC = () => {
     
     return (
       <View style={[styles.messageContainer, isUser ? styles.userMessageContainer : styles.agentMessageContainer]}>
-        {!isUser && (
-          <Image source={{ uri: AGENT_AVATAR }} style={styles.avatar} />
-        )}
-        
         <View style={[
           styles.messageBubble,
           isUser ? styles.userBubble : styles.agentBubble,
@@ -250,10 +258,6 @@ const LiveSupport: React.FC = () => {
             )}
           </Text>
         </View>
-        
-        {isUser && (
-          <Image source={{ uri: USER_AVATAR }} style={styles.avatar} />
-        )}
       </View>
     );
   };
@@ -263,9 +267,10 @@ const LiveSupport: React.FC = () => {
     outputRange: [100, 0],
   });
 
-  const callOptionsTranslateY = callOptionsAnimation.interpolate({
+  // Create the interpolated rotation value
+  const spin = rotateAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [100, 0],
+    outputRange: ['0deg', '360deg']
   });
 
   return (
@@ -283,8 +288,14 @@ const LiveSupport: React.FC = () => {
           <Text style={styles.headerSubtitle}>Customer Support</Text>
         </View>
         
-        <TouchableOpacity onPress={toggleCallOptions} style={styles.headerButton}>
-          <Icon name="call" size={22} color="#00D09C" />
+        <TouchableOpacity onPress={refreshChats} style={styles.headerButton} disabled={isRefreshing}>
+          <Animated.View style={isRefreshing ? { transform: [{ rotate: spin }] } : undefined}>
+            <MaterialCommunityIcons 
+              name="refresh" 
+              size={24} 
+              color="#00D09C"
+            />
+          </Animated.View>
         </TouchableOpacity>
       </View>
 
@@ -310,7 +321,6 @@ const LiveSupport: React.FC = () => {
         {/* Typing indicator */}
         {isTyping && (
           <View style={styles.typingIndicator}>
-            <Image source={{ uri: AGENT_AVATAR }} style={styles.typingAvatar} />
             <View style={styles.typingBubble}>
               <View style={styles.typingAnimation}>
                 <View style={styles.typingDot1} />
@@ -452,55 +462,6 @@ const LiveSupport: React.FC = () => {
           </Animated.View>
         </>
       )}
-
-      {/* Call Options */}
-      {showCallOptions && (
-        <>
-          <TouchableOpacity 
-            style={styles.callOptionsOverlay}
-            activeOpacity={0.7}
-            onPress={() => setShowCallOptions(false)}
-          />
-          <Animated.View 
-            style={[
-              styles.callOptions, 
-              { transform: [{ translateY: callOptionsTranslateY }] }
-            ]}
-          >
-            <StatusBar backgroundColor="rgba(0,0,0,0.7)" barStyle="light-content" />
-            <View style={styles.callOptionsHandle}>
-              <View style={styles.callOptionsDragBar} />
-            </View>
-            
-            <TouchableOpacity 
-              style={styles.callOption}
-              onPress={() => initiateCall('audio')}
-            >
-              <View style={[styles.callIconContainer, { backgroundColor: 'rgba(76, 175, 80, 0.2)' }]}>
-                <MaterialCommunityIcons name="phone" size={28} color="#4CAF50" />
-              </View>
-              <Text style={styles.callOptionText}>Voice Call</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.callOption}
-              onPress={() => initiateCall('video')}
-            >
-              <View style={[styles.callIconContainer, { backgroundColor: 'rgba(33, 150, 243, 0.2)' }]}>
-                <MaterialCommunityIcons name="video" size={28} color="#2196F3" />
-              </View>
-              <Text style={styles.callOptionText}>Video Call</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.callCancelOption}
-              onPress={() => setShowCallOptions(false)}
-            >
-              <Text style={styles.callCancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </>
-      )}
     </SafeAreaView>
   );
 };
@@ -557,48 +518,34 @@ const styles = StyleSheet.create({
   },
   userMessageContainer: {
     alignSelf: 'flex-end',
-    flexDirection: 'row',
     maxWidth: '85%',
     justifyContent: 'flex-end',
   },
   agentMessageContainer: {
     alignSelf: 'flex-start',
-    flexDirection: 'row',
     marginTop: 16,
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#333',
-    flexShrink: 0,
   },
   messageBubble: {
     borderRadius: 16,
     padding: 12,
-    maxWidth: '80%',
-    marginHorizontal: 8,
+    maxWidth: '100%',
     flexShrink: 1,
     flexGrow: 0,
   },
   userBubble: {
     backgroundColor: '#004D40',
     borderTopRightRadius: 2,
-    maxWidth: '70%',
+    maxWidth: '100%',
     paddingVertical: 8,
     paddingHorizontal: 14,
-    marginRight: 8,
-    marginLeft: 8,
     flexShrink: 1,
   },
   agentBubble: {
     backgroundColor: 'transparent',
     borderTopLeftRadius: 2,
-    maxWidth: '90%',
+    maxWidth: '100%',
     paddingVertical: 8,
     paddingHorizontal: 14,
-    marginRight: 8,
-    marginLeft: 8,
     borderWidth: 1,
     borderColor: "#2A2A2A",
     borderRadius: 16,
@@ -663,16 +610,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typingIndicator: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
     marginLeft: 16,
     marginBottom: 24,
-  },
-  typingAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    marginRight: 8,
   },
   typingBubble: {
     backgroundColor: '#2A2A2A',
@@ -807,74 +746,6 @@ const styles = StyleSheet.create({
   attachmentText: {
     color: '#fff',
     fontSize: 12,
-  },
-  callOptionsOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    zIndex: 1,
-  },
-  callOptions: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#1A1A1A',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 20,
-    borderTopColor: '#2A2A2A',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
-    zIndex: 2,
-  },
-  callOptionsHandle: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  callOptionsDragBar: {
-    width: 40,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#444',
-  },
-  callOption: {
-    alignItems: 'center',
-    width: 120,
-    marginBottom: 20,
-  },
-  callIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  callOptionText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  callCancelOption: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 10,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#2A2A2A',
-  },
-  callCancelText: {
-    color: '#FF5252',
-    fontSize: 16,
-    fontWeight: '600',
   },
   selectedMediaContainer: {
     paddingHorizontal: 16,

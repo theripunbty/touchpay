@@ -67,6 +67,30 @@ export type RootStackParamList = {
   SnowHome: undefined;
   Game: undefined;
   Transact: undefined;
+  Billings: undefined;
+  Invite: undefined;
+  Autopay: undefined;
+  TotalSpents: undefined;
+  Borrow: undefined;
+  ViewDetails: {
+    loanDetails?: {
+      id: string;
+      amount: number;
+      interest: number;
+      totalPaid: number;
+      term: string;
+      interestRate: string;
+      startDate: string;
+      endDate: string;
+      status: 'PAID' | 'ACTIVE' | 'OVERDUE';
+      payments: Array<{
+        id: string;
+        date: string;
+        amount: number;
+        type: 'REGULAR' | 'EARLY' | 'LATE';
+      }>;
+    };
+  };
 };
 
 export type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Splash">;
@@ -98,3 +122,9 @@ export type PaymentSuccessScreenNavigationProp = NativeStackNavigationProp<RootS
 export type SnowHomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "SnowHome">;
 export type GameScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Game">;
 export type TransactScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Transact">;
+export type BillingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Billings">;
+export type InviteScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Invite">;
+export type AutopayScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Autopay">;
+export type TotalSpentsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "TotalSpents">;
+export type BorrowScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Borrow">;
+export type ViewDetailsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "ViewDetails">;
